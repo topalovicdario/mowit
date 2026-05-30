@@ -1,0 +1,239 @@
+<ContentPage
+    x:Class="MowIT.Presentation.Pages.ScanPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MowIT.Presentation.ViewModels"
+    xmlns:entities="clr-namespace:MowIT.Domain.Entities"
+    xmlns:logging="clr-namespace:MowIT.Application.Logging"
+    x:DataType="vm:ScanViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource PageBg}">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+
+        <Grid Grid.RowSpan="5" InputTransparent="True">
+            <Ellipse Fill="{StaticResource EarthPrimary}" Opacity="0.07"
+                     WidthRequest="320" HeightRequest="320"
+                     HorizontalOptions="End" VerticalOptions="Start"
+                     Margin="0,-110,-110,0"/>
+            <Ellipse Fill="{StaticResource EarthAccent}" Opacity="0.06"
+                     WidthRequest="220" HeightRequest="220"
+                     HorizontalOptions="Start" VerticalOptions="End"
+                     Margin="-80,0,0,-80"/>
+        </Grid>
+
+<Grid Grid.Row="0" Padding="22,52,22,10" ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                <Label Text="Find Your Mower"
+                       FontSize="28" FontAttributes="Bold"
+                       TextColor="{StaticResource TextMain}"/>
+                <Label Text="Power on GreenTitan and tap Scan"
+                       FontSize="12" TextColor="{StaticResource TextMuted}"/>
+            </VerticalStackLayout>
+            <Border Grid.Column="1" Style="{StaticResource IconBadge}">
+                <Label Text="📡" FontSize="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+        </Grid>
+
+<Border Grid.Row="1" Margin="18,0,18,4"
+                Stroke="Transparent" StrokeShape="RoundRectangle 20"
+                Padding="16,12" BackgroundColor="{StaticResource CardBg}">
+            <Border.Shadow>
+                <Shadow Brush="#14000000" Offset="0,4" Radius="14"/>
+            </Border.Shadow>
+            <HorizontalStackLayout Spacing="14" VerticalOptions="Center">
+
+                <Button Text="{Binding IsScanning, Converter={StaticResource BoolToScanLabel}}"
+                        Command="{Binding ToggleScanCommand}"
+                        BackgroundColor="{Binding IsScanning, Converter={StaticResource StateToColor}}"
+                        TextColor="White"
+                        CornerRadius="16"
+                        HeightRequest="44"
+                        Padding="20,0"
+                        FontAttributes="Bold"
+                        FontSize="14"/>
+
+                <ActivityIndicator IsRunning="{Binding IsScanning}"
+                                   Color="{StaticResource EarthPrimary}"
+                                   VerticalOptions="Center"/>
+
+                <Label Text="Searching…"
+                       FontSize="13" TextColor="{StaticResource TextMuted}"
+                       VerticalOptions="Center"
+                       IsVisible="{Binding IsScanning}"/>
+            </HorizontalStackLayout>
+        </Border>
+
+<CollectionView Grid.Row="2"
+                        ItemsSource="{Binding DiscoveredDevices}"
+                        Margin="18,0,18,0"
+                        SelectionMode="None">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center"
+                                     Spacing="16" Margin="0,48">
+                    <Border StrokeShape="Ellipse" Stroke="Transparent"
+                            BackgroundColor="{StaticResource EarthPrimarySoft}"
+                            WidthRequest="88" HeightRequest="88"
+                            HorizontalOptions="Center">
+                        <Label Text="📡" FontSize="42"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="No devices found"
+                           FontSize="17" FontAttributes="Bold"
+                           TextColor="{StaticResource TextMain}"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Make sure your GreenTitan is&#10;powered on and nearby"
+                           FontSize="13" TextColor="{StaticResource TextMuted}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="entities:MowerDevice">
+                    <Border Margin="0,5"
+                            Stroke="Transparent" StrokeShape="RoundRectangle 20"
+                            Padding="14" BackgroundColor="{StaticResource CardBg}">
+                        <Border.Shadow>
+                            <Shadow Brush="#10000000" Offset="0,3" Radius="12"/>
+                        </Border.Shadow>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+
+<Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 14" Stroke="Transparent"
+                                    BackgroundColor="{StaticResource EarthPrimarySoft}"
+                                    WidthRequest="48" HeightRequest="48">
+                                <Label Text="🤖" FontSize="26"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+
+<VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding Name}"
+                                       FontSize="16" FontAttributes="Bold"
+                                       TextColor="{StaticResource TextMain}"/>
+
+</VerticalStackLayout>
+
+<Button Grid.Column="2"
+                                    Text="→ Link"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ScanViewModel}}, Path=ConnectCommand}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="{StaticResource EarthPrimary}"
+                                    TextColor="White"
+                                    CornerRadius="14"
+                                    HeightRequest="40"
+                                    FontAttributes="Bold"
+                                    FontSize="13"
+                                    Padding="14,0"
+                                    VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <Border Grid.Row="3"
+        Margin="18,8,18,0"
+        Stroke="Transparent"
+        StrokeShape="RoundRectangle 18"
+        Padding="12"
+        BackgroundColor="{StaticResource CardBg}">
+
+            <Border.Shadow>
+                <Shadow Brush="#12000000" Offset="0,3" Radius="12"/>
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="8">
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📟" FontSize="15" VerticalOptions="Center"/>
+                        <Label Text="EVENT LOG"
+                       FontSize="10"
+                       FontAttributes="Bold"
+                       CharacterSpacing="1.5"
+                       TextColor="{StaticResource TextMuted}"
+                       VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+
+                    <Label Grid.Column="1"
+                   Text="{Binding EventLog.Entries.Count, StringFormat='{0} events'}"
+                   FontSize="10"
+                   TextColor="{StaticResource TextMuted}"
+                   VerticalOptions="Center"/>
+                </Grid>
+
+                <CollectionView
+            ItemsSource="{Binding EventLog.Entries}"
+            HeightRequest="140"
+            SelectionMode="None">
+
+                    <CollectionView.EmptyView>
+                        <Label Text="No scan events yet"
+                       FontSize="11"
+                       TextColor="{StaticResource TextMuted}"
+                       HorizontalOptions="Center"
+                       Margin="0,12"/>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="logging:EventLogEntry">
+                            <Grid
+                        Padding="0,3"
+                        ColumnDefinitions="86,24,54,*"
+                        ColumnSpacing="6">
+
+                                <Label Grid.Column="0"
+                               Text="{Binding TimeText}"
+                               FontSize="10"
+                               TextColor="{StaticResource TextMuted}"
+                               VerticalOptions="Start"/>
+
+                                <Label Grid.Column="1"
+                               Text="{Binding LevelTag}"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{Binding LevelColor}"
+                               VerticalOptions="Start"/>
+
+                                <Label Grid.Column="2"
+                               Text="{Binding Source}"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{Binding LevelColor}"
+                               LineBreakMode="TailTruncation"
+                               VerticalOptions="Start"/>
+
+                                <Label Grid.Column="3"
+                               Text="{Binding Message}"
+                               FontSize="10"
+                               TextColor="{StaticResource TextMain}"
+                               LineBreakMode="WordWrap"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </Border>
+        <Border Grid.Row="4"
+                Margin="18,8,18,16"
+                Padding="16,10"
+                StrokeShape="RoundRectangle 16"
+                Stroke="Transparent"
+                BackgroundColor="{Binding ConnectionState, Converter={StaticResource StateToColor}}">
+            <Border.Shadow>
+                <Shadow Brush="#28000000" Offset="0,3" Radius="10"/>
+            </Border.Shadow>
+            <Label Text="{Binding ConnectionState}"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"
+                   FontSize="14"/>
+        </Border>
+
+    </Grid>
+</ContentPage>

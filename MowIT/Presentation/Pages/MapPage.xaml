@@ -1,0 +1,228 @@
+<ContentPage
+    x:Class="MowIT.Presentation.Pages.MapPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
+    xmlns:vm="clr-namespace:MowIT.Presentation.ViewModels"
+    xmlns:entities="clr-namespace:MowIT.Domain.Entities"
+    x:DataType="vm:MapViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource PageBg}">
+
+<Grid>
+
+<mapsui:MapControl x:Name="MapView"/>
+
+<Border
+            VerticalOptions="Start"
+            HorizontalOptions="Center"
+            Margin="0,52,0,0"
+            Padding="10"
+            StrokeShape="RoundRectangle 26"
+            Stroke="Transparent"
+            BackgroundColor="{StaticResource CardBg}">
+            <Border.Shadow>
+                <Shadow Brush="#30000000" Offset="0,6" Radius="16"/>
+            </Border.Shadow>
+
+            <HorizontalStackLayout Spacing="8">
+
+<Button
+                    Text="{Binding IsDrawingMode, Converter={StaticResource DrawModeLabel}}"
+                    Command="{Binding ToggleDrawingModeCommand}"
+                    BackgroundColor="{Binding IsDrawingMode, Converter={StaticResource ActiveColor}}"
+                    TextColor="White"
+                    CornerRadius="16"
+                    HeightRequest="40"
+                    FontSize="13"
+                    FontAttributes="Bold"
+                    Padding="14,0"/>
+
+<Button
+                    Text="↩"
+                    Command="{Binding UndoLastPointCommand}"
+                    IsVisible="{Binding IsDrawingMode}"
+                    BackgroundColor="{StaticResource SoftPanelBg}"
+                    TextColor="{StaticResource TextMain}"
+                    CornerRadius="16"
+                    HeightRequest="40"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Padding="10,0"/>
+
+<Button
+                    Text="{Binding ShowZonesPanel, Converter={StaticResource ZonesPanelLabel}}"
+                    Command="{Binding ToggleZonesPanelCommand}"
+                    BackgroundColor="{Binding ShowZonesPanel, Converter={StaticResource ActiveColor}}"
+                    TextColor="White"
+                    CornerRadius="16"
+                    HeightRequest="40"
+                    FontSize="13"
+                    FontAttributes="Bold"
+                    Padding="12,0"/>
+
+            </HorizontalStackLayout>
+        </Border>
+
+<Border
+            VerticalOptions="Start"
+            Margin="14,116,14,0"
+            Padding="14"
+            StrokeShape="RoundRectangle 22"
+            Stroke="Transparent"
+            BackgroundColor="{StaticResource CardBg}"
+            IsVisible="{Binding ShowZonesPanel}">
+            <Border.Shadow>
+                <Shadow Brush="#30000000" Offset="0,6" Radius="16"/>
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="10">
+
+                <HorizontalStackLayout Spacing="8">
+                    <BoxView Color="{StaticResource EarthPrimary}"
+                             WidthRequest="3" HeightRequest="14"
+                             VerticalOptions="Center" CornerRadius="2"/>
+                    <Label Text="{Binding SavedZones.Count, StringFormat='Zones ({0})'}"
+                           FontSize="15" FontAttributes="Bold"
+                           TextColor="{StaticResource TextMain}"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <CollectionView ItemsSource="{Binding SavedZones}" HeightRequest="180">
+
+                    <CollectionView.EmptyView>
+                        <Label Text="No zones yet — draw a boundary and save it."
+                               TextColor="{StaticResource TextMuted}"
+                               FontSize="13" Margin="0,4"/>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="entities:BoundaryZone">
+                            <Grid ColumnDefinitions="*,Auto,Auto"
+                                  ColumnSpacing="8" Padding="0,6">
+
+                                <VerticalStackLayout Grid.Column="0" Spacing="2"
+                                                     VerticalOptions="Center">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextMain}"/>
+                                    <Label Text="{Binding Points.Count, StringFormat='{0} pts'}"
+                                           FontSize="11" TextColor="{StaticResource TextMuted}"/>
+                                </VerticalStackLayout>
+
+                                <Button Grid.Column="1"
+                                        Text="↗ Load"
+                                        BackgroundColor="{StaticResource EarthPrimary}"
+                                        TextColor="White"
+                                        CornerRadius="12"
+                                        HeightRequest="34"
+                                        FontSize="12"
+                                        FontAttributes="Bold"
+                                        Padding="10,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MapViewModel}}, Path=LoadZoneCommand}"
+                                        CommandParameter="{Binding .}"/>
+
+                                <Button Grid.Column="2"
+                                        Text="🗑"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{StaticResource EarthDanger}"
+                                        FontSize="18"
+                                        Padding="6,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MapViewModel}}, Path=DeleteZoneCommand}"
+                                        CommandParameter="{Binding .}"/>
+
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </Border>
+
+<Border
+            VerticalOptions="End"
+            Margin="14,0,14,28"
+            Padding="16"
+            StrokeShape="RoundRectangle 24"
+            Stroke="Transparent"
+            BackgroundColor="{StaticResource CardBg}"
+            IsVisible="{Binding BoundaryPoints.Count, Converter={StaticResource CountToBool}}">
+            <Border.Shadow>
+                <Shadow Brush="#30000000" Offset="0,6" Radius="18"/>
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="12">
+
+<HorizontalStackLayout Spacing="8">
+                    <BoxView Color="{StaticResource EarthPrimary}"
+                             WidthRequest="3" HeightRequest="14"
+                             VerticalOptions="Center" CornerRadius="2"/>
+                    <Label Text="{Binding BoundaryPoints.Count, StringFormat='{0} boundary points'}"
+                           FontSize="15" FontAttributes="Bold"
+                           TextColor="{StaticResource TextMain}"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+<Border StrokeShape="RoundRectangle 14" Stroke="Transparent"
+                        BackgroundColor="{StaticResource InputBg}" Padding="14,4">
+                    <Entry Text="{Binding ZoneName}"
+                           Placeholder="Zone name…"
+                           FontSize="14"
+                           TextColor="{StaticResource TextMain}"
+                           PlaceholderColor="{StaticResource TextMuted}"/>
+                </Border>
+
+<Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+
+                    <Button Grid.Column="0"
+                            Text="✕ Clear"
+                            Command="{Binding ClearBoundaryPointsCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource EarthDanger}"
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            Padding="8,0"/>
+
+                    <BoxView Grid.Column="1"/>
+
+                    <Button Grid.Column="2"
+                            Text="💾"
+                            Command="{Binding SaveZoneLocallyCommand}"
+                            IsEnabled="{Binding CanSaveLocally}"
+                            BackgroundColor="{StaticResource SoftPanelBg}"
+                            TextColor="{StaticResource TextMain}"
+                            CornerRadius="16"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            Padding="14,10"/>
+
+                    <Button Grid.Column="3"
+                            Text="→ Send"
+                            Command="{Binding SendBoundaryToRobotCommand}"
+                            IsEnabled="{Binding CanSendBoundary}"
+                            BackgroundColor="{StaticResource EarthPrimary}"
+                            TextColor="White"
+                            CornerRadius="16"
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            Padding="18,10"/>
+
+                </Grid>
+
+<ProgressBar
+                    Progress="{Binding SendProgress, Converter={StaticResource PctToFraction}}"
+                    IsVisible="{Binding IsSendingBoundary}"
+                    HeightRequest="8"/>
+
+<Border IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBool}}"
+                        StrokeShape="RoundRectangle 12" Stroke="Transparent"
+                        BackgroundColor="#FDECEA" Padding="12,8">
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="{StaticResource EarthDanger}" FontSize="13"/>
+                </Border>
+
+            </VerticalStackLayout>
+        </Border>
+
+    </Grid>
+</ContentPage>

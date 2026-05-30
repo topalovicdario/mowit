@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:MowIT"
+             xmlns:conv="clr-namespace:MowIT.Presentation.Converters"
+             x:Class="MowIT.App">
+
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+<conv:PctToFractionConverter          x:Key="PctToFraction" />
+            <conv:InvertBoolConverter             x:Key="InvertBool" />
+            <conv:BatteryToColorConverter         x:Key="BatteryToColor" />
+            <conv:BladeToTextConverter            x:Key="BladeToText" />
+            <conv:BoolToOnOffConverter            x:Key="BoolToOnOff" />
+            <conv:BoolToRainTextConverter         x:Key="BoolToRainText" />
+            <conv:RainToColorConverter            x:Key="RainToColor" />
+            <conv:ConnectionStateToColorConverter x:Key="StateToColor" />
+            <conv:BoolToScanLabelConverter        x:Key="BoolToScanLabel" />
+            <conv:DrawModeLabelConverter          x:Key="DrawModeLabel" />
+            <conv:RecordModeLabelConverter        x:Key="RecordModeLabel" />
+            <conv:ActiveColorConverter            x:Key="ActiveColor" />
+            <conv:RecordColorConverter            x:Key="RecordColor" />
+            <conv:CountToBoolConverter            x:Key="CountToBool" />
+            <conv:StringToBoolConverter           x:Key="StringToBool" />
+            <conv:ZonesPanelLabelConverter        x:Key="ZonesPanelLabel" />
+            <conv:PolygonModeLabelConverter       x:Key="PolygonModeLabel" />
+            <conv:BoolToSuccessColorConverter     x:Key="BoolToSuccessColor" />
+            <conv:BoolToEarthOrGreyConverter      x:Key="BoolToEarthOrGrey" />
+            <conv:BoolToOpacityConverter          x:Key="BoolToOpacity" />
+
+<Thickness x:Key="PagePadding">18,0,18,22</Thickness>
+            <Thickness x:Key="CardPadding">20</Thickness>
+
+            <x:Double x:Key="CardCornerRadius">28</x:Double>
+            <x:Double x:Key="LargeCardCornerRadius">34</x:Double>
+
+<Style TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="HeightRequest" Value="48" />
+                <Setter Property="Padding" Value="16,0" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="BackgroundColor" Value="{StaticResource EarthPrimary}" />
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+            </Style>
+
+            <Style TargetType="Picker">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="TitleColor" Value="{StaticResource TextMuted}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+            </Style>
+
+            <Style TargetType="TimePicker">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+            </Style>
+
+            <Style TargetType="Switch">
+                <Setter Property="OnColor" Value="{StaticResource EarthPrimary}" />
+                <Setter Property="ThumbColor" Value="White" />
+            </Style>
+
+            <Style TargetType="ProgressBar">
+                <Setter Property="ProgressColor" Value="{StaticResource EarthPrimary}" />
+                <Setter Property="BackgroundColor" Value="#E6EAE3" />
+                <Setter Property="HeightRequest" Value="8" />
+            </Style>
+
+            <Style TargetType="ActivityIndicator">
+                <Setter Property="Color" Value="{StaticResource EarthPrimary}" />
+            </Style>
+
+<Style x:Key="PageTitleLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="30" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            </Style>
+
+            <Style x:Key="PageSubtitleLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="TextColor" Value="{StaticResource TextMuted}" />
+            </Style>
+
+            <Style x:Key="CardTitleLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            </Style>
+
+            <Style x:Key="SectionLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextMuted}" />
+                <Setter Property="CharacterSpacing" Value="1.7" />
+            </Style>
+
+            <Style x:Key="CaptionLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{StaticResource TextMuted}" />
+            </Style>
+
+            <Style x:Key="ValueLabel" TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            </Style>
+
+<Style x:Key="CardBorder" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 28" />
+                <Setter Property="Padding" Value="20" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="#16000000"
+                                Offset="0,5"
+                                Radius="18" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="LargeCardBorder" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 34" />
+                <Setter Property="Padding" Value="22" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="#20000000"
+                                Offset="0,8"
+                                Radius="24" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SoftPanelBorder" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#F3F6F1" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+                <Setter Property="Padding" Value="14,10" />
+            </Style>
+
+            <Style x:Key="InputField" TargetType="Border">
+                <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="BackgroundColor" Value="#F3F6F1" />
+                <Setter Property="Padding" Value="12,4" />
+            </Style>
+
+            <Style x:Key="IconBadge" TargetType="Border">
+                <Setter Property="WidthRequest" Value="48" />
+                <Setter Property="HeightRequest" Value="48" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+                <Setter Property="BackgroundColor" Value="#EFFFFFFF" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="#16000000"
+                                Offset="0,4"
+                                Radius="14" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+<Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource EarthPrimary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="22" />
+                <Setter Property="HeightRequest" Value="56" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="16" />
+            </Style>
+
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="BackgroundColor" Value="#EEF7E9" />
+                <Setter Property="TextColor" Value="{StaticResource EarthPrimary}" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="HeightRequest" Value="44" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style x:Key="LightButton" TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}" />
+                <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="HeightRequest" Value="44" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+
+            <Style x:Key="DangerButton" TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource EarthDanger}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="HeightRequest" Value="44" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+
+            <Style x:Key="DangerLightButton" TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+                <Setter Property="BackgroundColor" Value="#FDECEA" />
+                <Setter Property="TextColor" Value="{StaticResource EarthDanger}" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="HeightRequest" Value="44" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+
+<Style x:Key="ErrorBanner" TargetType="Border">
+                <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="BackgroundColor" Value="#FDECEA" />
+                <Setter Property="Padding" Value="14,10" />
+            </Style>
+
+            <Style x:Key="SuccessBanner" TargetType="Border">
+                <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="BackgroundColor" Value="#EEF7E9" />
+                <Setter Property="Padding" Value="14,10" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MowIT.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:MowIT.Presentation.Pages"
+    Shell.FlyoutBehavior="Disabled"
+    Title="MowIT">
+
+<ShellContent Route="login" ContentTemplate="{DataTemplate pages:LoginPage}"/>
+    <ShellContent Route="scan"  ContentTemplate="{DataTemplate pages:ScanPage}"/>
+
+<TabBar x:Name="MainTabs">
+        <Tab Title="Dashboard" Icon="tab_dashboard.svg">
+            <ShellContent Route="dashboard" ContentTemplate="{DataTemplate pages:DashboardPage}"/>
+        </Tab>
+        <Tab Title="Control" Icon="tab_control.svg">
+            <ShellContent Route="control" ContentTemplate="{DataTemplate pages:ControlPage}"/>
+        </Tab>
+        <Tab Title="Map" Icon="tab_map.svg">
+            <ShellContent Route="map" ContentTemplate="{DataTemplate pages:MapPage}"/>
+        </Tab>
+        <Tab Title="Schedule" Icon="tab_schedule.svg">
+            <ShellContent Route="schedule" ContentTemplate="{DataTemplate pages:SchedulePage}"/>
+        </Tab>
+    </TabBar>
+
+</Shell>

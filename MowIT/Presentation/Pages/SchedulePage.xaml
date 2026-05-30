@@ -1,0 +1,253 @@
+<ContentPage
+    x:Class="MowIT.Presentation.Pages.SchedulePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MowIT.Presentation.ViewModels"
+    xmlns:entities="clr-namespace:MowIT.Domain.Entities"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="vm:ScheduleViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource PageBg}">
+
+<Grid RowDefinitions="Auto,*">
+
+<Grid Grid.RowSpan="2" InputTransparent="True">
+            <Ellipse Fill="{StaticResource EarthPrimary}" Opacity="0.07"
+                     WidthRequest="300" HeightRequest="300"
+                     HorizontalOptions="End" VerticalOptions="Start"
+                     Margin="0,-100,-100,0"/>
+        </Grid>
+
+<Grid Grid.Row="0" Padding="22,52,22,10" ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                <Label Text="Schedule"
+                       FontSize="30" FontAttributes="Bold"
+                       TextColor="{StaticResource TextMain}"/>
+                <Label Text="Plan your mowing sessions"
+                       FontSize="12" TextColor="{StaticResource TextMuted}"/>
+            </VerticalStackLayout>
+            <Border Grid.Column="1" Style="{StaticResource IconBadge}">
+                <Label Text="🗓" FontSize="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+        </Grid>
+
+<ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="18,4,18,28" Spacing="14">
+
+<Border Stroke="Transparent" StrokeShape="RoundRectangle 24"
+                        Padding="16" BackgroundColor="{StaticResource CardBg}">
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Offset="0,5" Radius="16"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="14">
+
+<HorizontalStackLayout Spacing="10">
+                            <BoxView Color="{StaticResource EarthPrimary}"
+                                     WidthRequest="3" HeightRequest="18"
+                                     VerticalOptions="Center" CornerRadius="2"/>
+                            <Label Text="New Schedule"
+                                   FontSize="18" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextMain}"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+<Label Text="MOWING DAYS" Style="{StaticResource SectionLabel}"
+                               Margin="0,-4,0,0"/>
+                        <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="5">
+                            <Button Grid.Column="0" Text="Mo"
+                                    Command="{Binding ToggleDayCommand}" CommandParameter="Monday"
+                                    BackgroundColor="{Binding Monday, Converter={StaticResource ActiveColor}}"
+                                    TextColor="White" CornerRadius="12" HeightRequest="36"
+                                    FontSize="11" FontAttributes="Bold"/>
+                            <Button Grid.Column="1" Text="Tu"
+                                    Command="{Binding ToggleDayCommand}" CommandParameter="Tuesday"
+                                    BackgroundColor="{Binding Tuesday, Converter={StaticResource ActiveColor}}"
+                                    TextColor="White" CornerRadius="12" HeightRequest="36"
+                                    FontSize="11" FontAttributes="Bold"/>
+                            <Button Grid.Column="2" Text="We"
+                                    Command="{Binding ToggleDayCommand}" CommandParameter="Wednesday"
+                                    BackgroundColor="{Binding Wednesday, Converter={StaticResource ActiveColor}}"
+                                    TextColor="White" CornerRadius="12" HeightRequest="36"
+                                    FontSize="11" FontAttributes="Bold"/>
+                            <Button Grid.Column="3" Text="Th"
+                                    Command="{Binding ToggleDayCommand}" CommandParameter="Thursday"
+                                    BackgroundColor="{Binding Thursday, Converter={StaticResource ActiveColor}}"
+                                    TextColor="White" CornerRadius="12" HeightRequest="36"
+                                    FontSize="11" FontAttributes="Bold"/>
+                            <Button Grid.Column="4" Text="Fr"
+                                    Command="{Binding ToggleDayCommand}" CommandParameter="Friday"
+                                    BackgroundColor="{Binding Friday, Converter={StaticResource ActiveColor}}"
+                                    TextColor="White" CornerRadius="12" HeightRequest="36"
+                                    FontSize="11" FontAttributes="Bold"/>
+                            <Button Grid.Column="5" Text="Sa"
+                                    Command="{Binding ToggleDayCommand}" CommandParameter="Saturday"
+                                    BackgroundColor="{Binding Saturday, Converter={StaticResource ActiveColor}}"
+                                    TextColor="White" CornerRadius="12" HeightRequest="36"
+                                    FontSize="11" FontAttributes="Bold"/>
+                            <Button Grid.Column="6" Text="Su"
+                                    Command="{Binding ToggleDayCommand}" CommandParameter="Sunday"
+                                    BackgroundColor="{Binding Sunday, Converter={StaticResource ActiveColor}}"
+                                    TextColor="White" CornerRadius="12" HeightRequest="36"
+                                    FontSize="11" FontAttributes="Bold"/>
+                        </Grid>
+
+<Label Text="ZONE" Style="{StaticResource SectionLabel}"/>
+                        <Border Style="{StaticResource InputField}">
+                            <Picker ItemsSource="{Binding SavedZones}"
+                                    ItemDisplayBinding="{Binding Name}"
+                                    SelectedItem="{Binding SelectedZone}"
+                                    Title="No zone — use onboard boundary"
+                                    FontSize="14"
+                                    TextColor="{StaticResource TextMain}"
+                                    TitleColor="{StaticResource TextMuted}"/>
+                        </Border>
+
+<Label Text="START" Style="{StaticResource SectionLabel}"/>
+                        <Border Style="{StaticResource InputField}">
+                            <TimePicker Time="{Binding StartTime}"
+                                        Format="HH:mm"
+                                        FontSize="20"
+                                        TextColor="{StaticResource TextMain}"/>
+                        </Border>
+
+<Label Text="{Binding DurationLabel, StringFormat='DURATION: {0}'}"
+                               Style="{StaticResource SectionLabel}"/>
+                        <Slider Minimum="15" Maximum="240"
+                                Value="{Binding DurationMinutes}"/>
+
+<Border IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBool}}"
+                                Style="{StaticResource ErrorBanner}">
+                            <Label Text="{Binding ErrorMessage}"
+                                   TextColor="{StaticResource EarthDanger}" FontSize="13"/>
+                        </Border>
+
+<Button Text="💾 Save"
+                                Command="{Binding SaveScheduleCommand}"
+                                BackgroundColor="{StaticResource EarthPrimary}"
+                                TextColor="White"
+                                CornerRadius="18"
+                                HeightRequest="50"
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                IsEnabled="{Binding IsNotBusy}"/>
+
+                    </VerticalStackLayout>
+                </Border>
+
+<Border IsVisible="{Binding IsSendingZone}"
+                        Stroke="Transparent" StrokeShape="RoundRectangle 16"
+                        BackgroundColor="{StaticResource CardBg}" Padding="14,12">
+                    <Border.Shadow>
+                        <Shadow Brush="#20000000" Offset="0,3" Radius="10"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="8">
+                        <HorizontalStackLayout Spacing="10">
+                            <ActivityIndicator IsRunning="{Binding IsSendingZone}"
+                                               HeightRequest="18" WidthRequest="18"/>
+                            <Label Text="{Binding SendingZoneLabel}"
+                                   FontSize="13" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextMain}"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <ProgressBar Progress="{Binding SendFraction}" HeightRequest="8"/>
+                    </VerticalStackLayout>
+                </Border>
+
+<HorizontalStackLayout
+                    IsVisible="{Binding IsSendingZone, Converter={StaticResource InvertBool}}"
+                    Spacing="10">
+                    <BoxView Color="{StaticResource EarthAccent}"
+                             WidthRequest="3" HeightRequest="18"
+                             VerticalOptions="Center" CornerRadius="2"/>
+                    <Label Text="Active Schedules"
+                           FontSize="17" FontAttributes="Bold"
+                           TextColor="{StaticResource TextMain}"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+<VerticalStackLayout Spacing="10"
+                                     BindableLayout.ItemsSource="{Binding Schedules}">
+                    <BindableLayout.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="8" Margin="0,8">
+                            <Label Text="🌿" FontSize="36" HorizontalOptions="Center"/>
+                            <Label Text="No schedules yet"
+                                   FontSize="15" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextMain}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Create one above to get started"
+                                   FontSize="12" TextColor="{StaticResource TextMuted}"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </BindableLayout.EmptyView>
+
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="entities:MowingSchedule">
+
+                            <Border Stroke="Transparent" StrokeShape="RoundRectangle 20"
+                                    BackgroundColor="{StaticResource CardBg}" Padding="0">
+                                <Border.Shadow>
+                                    <Shadow Brush="#12000000" Offset="0,3" Radius="10"/>
+                                </Border.Shadow>
+
+                                <Grid ColumnDefinitions="4,*,Auto,Auto,Auto">
+
+<BoxView Grid.Column="0"
+                                             Color="{Binding IsActive, Converter={StaticResource ActiveColor}}"
+                                             CornerRadius="3"/>
+
+<VerticalStackLayout Grid.Column="1"
+                                                         Padding="14,12" Spacing="3">
+                                        <Label Text="{Binding StartTime, StringFormat='Start: {0:hh\\:mm}'}"
+                                               FontSize="15" FontAttributes="Bold"
+                                               TextColor="{StaticResource TextMain}"/>
+                                        <Label Text="{Binding DurationMinutes, StringFormat='{0} min'}"
+                                               FontSize="12" TextColor="{StaticResource TextMuted}"/>
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="🗺" FontSize="11"/>
+                                            <Label Text="{Binding ZoneLabel}"
+                                                   FontSize="11" FontAttributes="Bold"
+                                                   TextColor="{StaticResource EarthPrimary}"/>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+
+<Button Grid.Column="2"
+                                            Text="▶"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ScheduleViewModel}}, Path=MowNowCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{StaticResource EarthAccent}"
+                                            TextColor="{StaticResource TextMain}"
+                                            CornerRadius="10"
+                                            HeightRequest="34"
+                                            WidthRequest="38"
+                                            FontSize="14"
+                                            FontAttributes="Bold"
+                                            Padding="0"
+                                            Margin="0,0,4,0"
+                                            VerticalOptions="Center"/>
+
+<Switch Grid.Column="3"
+                                            IsToggled="{Binding IsActive}"
+                                            VerticalOptions="Center"
+                                            Margin="0,0,4,0"/>
+
+<Button Grid.Column="4"
+                                            Text="🗑"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ScheduleViewModel}}, Path=DeleteScheduleCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="Transparent"
+                                            TextColor="{StaticResource EarthDanger}"
+                                            FontSize="18"/>
+
+                                </Grid>
+                            </Border>
+
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+</ContentPage>

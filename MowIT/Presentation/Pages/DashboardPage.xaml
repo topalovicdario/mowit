@@ -1,0 +1,359 @@
+<ContentPage
+    x:Class="MowIT.Presentation.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:MowIT.Presentation.ViewModels"
+    xmlns:controls="clr-namespace:MowIT.Presentation.Controls"
+    xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
+    xmlns:logging="clr-namespace:MowIT.Application.Logging"
+    x:DataType="vm:DashboardViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource PageBg}">
+
+    <Grid RowDefinitions="Auto,*">
+
+<Grid Grid.RowSpan="2" InputTransparent="True">
+            <Ellipse Fill="{StaticResource EarthPrimary}" Opacity="0.06"
+                     WidthRequest="300" HeightRequest="300"
+                     HorizontalOptions="End" VerticalOptions="Start"
+                     Margin="0,-100,-100,0"/>
+        </Grid>
+
+<Grid Grid.Row="0" Padding="22,52,22,14" ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="MowIT"
+                       FontSize="28" FontAttributes="Bold"
+                       TextColor="{StaticResource TextMain}"/>
+                <Label Text="GreenTitan dashboard"
+                       FontSize="12" TextColor="{StaticResource TextMuted}"/>
+            </VerticalStackLayout>
+            <Border Grid.Column="1" Style="{StaticResource IconBadge}">
+                <Label Text="⚙" FontSize="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+        </Grid>
+
+<ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="18,0,18,28" Spacing="12">
+
+<Border Stroke="Transparent"
+                        StrokeShape="RoundRectangle 28"
+                        Padding="20"
+                        BackgroundColor="{Binding StateColor}">
+                    <Border.Shadow>
+                        <Shadow Brush="#40000000" Offset="0,10" Radius="24" Opacity="0.35"/>
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+
+<Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="CURRENT STATE"
+                                       FontSize="10" FontAttributes="Bold"
+                                       TextColor="White" Opacity="0.72"
+                                       CharacterSpacing="1.6"/>
+                                <Label Text="{Binding StateLabel}"
+                                       FontSize="32" FontAttributes="Bold"
+                                       TextColor="White"/>
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1" WidthRequest="52" HeightRequest="52"
+                                    Stroke="Transparent" StrokeShape="RoundRectangle 20"
+                                    BackgroundColor="#2EFFFFFF">
+                                <Label Text="🤖" FontSize="26"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                        </Grid>
+
+<Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Border Stroke="Transparent" StrokeShape="RoundRectangle 16"
+                                    BackgroundColor="#22FFFFFF" Padding="12,10">
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="GPS ACCURACY"
+                                           FontSize="10" FontAttributes="Bold"
+                                           TextColor="White" Opacity="0.72"/>
+                                    <Label Text="{Binding GpsAccuracyLabel}"
+                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="White" LineBreakMode="TailTruncation"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Stroke="Transparent" StrokeShape="RoundRectangle 16"
+                                    BackgroundColor="#22FFFFFF" Padding="12,10"
+                                    IsVisible="{Binding HasUptime}">
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="UPTIME"
+                                           FontSize="10" FontAttributes="Bold"
+                                           TextColor="White" Opacity="0.72"/>
+                                    <Label Text="{Binding UptimeLabel}"
+                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="White" LineBreakMode="TailTruncation"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+<Label Text="{Binding ReadinessText}"
+                               FontSize="11"
+                               TextColor="White" Opacity="0.85"
+                               HorizontalOptions="Center"/>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Text="▶ Mow"
+                                    Command="{Binding StartMowingCommand}"
+                                    IsEnabled="{Binding CanStartMowing}"
+                                    Opacity="{Binding CanStartMowing, Converter={StaticResource BoolToOpacity}}"
+                                    HeightRequest="50" CornerRadius="18"
+                                    FontSize="15" FontAttributes="Bold"
+                                    BackgroundColor="White"
+                                    TextColor="{Binding StateColor}"/>
+                            <Button Grid.Column="1"
+                                    Text="⏹ Stop"
+                                    Command="{Binding StopCommand}"
+                                    HeightRequest="50" CornerRadius="18"
+                                    FontSize="15" FontAttributes="Bold"
+                                    BackgroundColor="#28FFFFFF"
+                                    TextColor="White"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Style="{StaticResource CardBorder}">
+                    <VerticalStackLayout Spacing="8">
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="📟" FontSize="16" VerticalOptions="Center"/>
+                                <Label Text="EVENT LOG"
+                       Style="{StaticResource SectionLabel}"
+                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <Label Grid.Column="1"
+                   Text="{Binding EventLog.Entries.Count, StringFormat='{0} events'}"
+                   FontSize="10"
+                   TextColor="{StaticResource TextMuted}"
+                   VerticalOptions="Center"/>
+                        </Grid>
+
+                        <CollectionView
+            ItemsSource="{Binding EventLog.Entries}"
+            HeightRequest="170"
+            SelectionMode="None">
+
+                            <CollectionView.EmptyView>
+                                <Label Text="No events yet"
+                       FontSize="12"
+                       TextColor="{StaticResource TextMuted}"
+                       HorizontalOptions="Center"
+                       Margin="0,16"/>
+                            </CollectionView.EmptyView>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="logging:EventLogEntry">
+                                    <Grid
+                        Padding="0,4"
+                        ColumnDefinitions="90,24,58,*"
+                        ColumnSpacing="7">
+
+                                        <Label Grid.Column="0"
+                               Text="{Binding TimeText}"
+                               FontSize="10"
+                               TextColor="{StaticResource TextMuted}"
+                               VerticalOptions="Start"/>
+
+                                        <Label Grid.Column="1"
+                               Text="{Binding LevelTag}"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{Binding LevelColor}"
+                               VerticalOptions="Start"/>
+
+                                        <Label Grid.Column="2"
+                               Text="{Binding Source}"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{Binding LevelColor}"
+                               LineBreakMode="TailTruncation"
+                               VerticalOptions="Start"/>
+
+                                        <Label Grid.Column="3"
+                               Text="{Binding Message}"
+                               FontSize="11"
+                               TextColor="{StaticResource TextMain}"
+                               LineBreakMode="WordWrap"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource CardBorder}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="📍" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="GPS POSITION" Style="{StaticResource SectionLabel}"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding GpsPositionText}"
+                                   FontSize="20" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextMain}"/>
+                            <Label Text="{Binding GpsSecondaryText}"
+                                   FontSize="13" TextColor="{StaticResource TextMuted}"/>
+                        </VerticalStackLayout>
+                        <controls:GpsStatusBadge
+                            FixType="{Binding GpsFixType}"
+                            Accuracy="{Binding GpsAccuracyLabel}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+<Border Style="{StaticResource CardBorder}" IsVisible="{Binding HasBattery}">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                <Label Text="⚡" FontSize="18"
+                                       TextColor="{Binding BatteryPct, Converter={StaticResource BatteryToColor}}"
+                                       VerticalOptions="Center"/>
+                                <Label Text="BATTERY" Style="{StaticResource SectionLabel}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="{Binding BatteryPct, StringFormat='{0}%'}"
+                                   FontSize="22" FontAttributes="Bold"
+                                   TextColor="{Binding BatteryPct, Converter={StaticResource BatteryToColor}}"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                        <ProgressBar Progress="{Binding BatteryPct, Converter={StaticResource PctToFraction}}"
+                                     ProgressColor="{Binding BatteryPct, Converter={StaticResource BatteryToColor}}"
+                                     HeightRequest="10"/>
+                    </VerticalStackLayout>
+                </Border>
+
+<Border Style="{StaticResource CardBorder}" IsVisible="{Binding HasSpeed}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="💨" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="SPEED" Style="{StaticResource SectionLabel}"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="{Binding CurrentSpeed, StringFormat='{0:F2}'}"
+                                   FontSize="32" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextMain}"/>
+                            <Label Text="m/s" FontSize="12"
+                                   TextColor="{StaticResource TextMuted}"
+                                   VerticalOptions="End" Margin="0,0,0,6"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+<Border Style="{StaticResource CardBorder}" IsVisible="{Binding HasRain}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="🌧" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="RAIN" Style="{StaticResource SectionLabel}"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding RainDetected, Converter={StaticResource BoolToRainText}}"
+                               FontSize="18" FontAttributes="Bold"
+                               TextColor="{Binding RainDetected, Converter={StaticResource RainToColor}}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+<Border Style="{StaticResource CardBorder}" IsVisible="{Binding HasBlade}">
+                    <VerticalStackLayout Spacing="10">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="✂" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="BLADE" Style="{StaticResource SectionLabel}"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding BladeOn, Converter={StaticResource BladeToText}}"
+                               FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource TextMain}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+<Border Style="{StaticResource CardBorder}" IsVisible="{Binding HasImu}">
+                    <VerticalStackLayout Spacing="14">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="🧭" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="IMU SENSORS" Style="{StaticResource SectionLabel}"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Border Style="{StaticResource SoftPanelBorder}">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="ACC X" FontSize="10" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextMuted}"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="{Binding AccX, StringFormat='{0:F2}'}"
+                                           FontSize="17" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextMain}"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource SoftPanelBorder}">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="ACC Y" FontSize="10" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextMuted}"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="{Binding AccY, StringFormat='{0:F2}'}"
+                                           FontSize="17" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextMain}"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource SoftPanelBorder}">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="ACC Z" FontSize="10" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextMuted}"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="{Binding AccZ, StringFormat='{0:F2}'}"
+                                           FontSize="17" FontAttributes="Bold"
+                                           TextColor="{StaticResource TextMain}"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+<Border Style="{StaticResource CardBorder}" IsVisible="{Binding HasImu}">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="📈" FontSize="16" VerticalOptions="Center"/>
+                                <Label Text="ACCELEROMETER X" Style="{StaticResource SectionLabel}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label Grid.Column="1" Text="LIVE"
+                                   FontSize="10" FontAttributes="Bold"
+                                   TextColor="{StaticResource EarthPrimary}"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                        <Border Stroke="Transparent" StrokeShape="RoundRectangle 16"
+                                BackgroundColor="{StaticResource SoftPanelBg}" Padding="8">
+                            <skia:SKCanvasView x:Name="AccelChart"
+                                               HeightRequest="110"
+                                               PaintSurface="OnPaintAccelChart"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+<Border IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBool}}"
+                        Style="{StaticResource ErrorBanner}">
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="⚠" TextColor="{StaticResource EarthDanger}"
+                               FontSize="16" VerticalOptions="Center"/>
+                        <Label Text="{Binding ErrorMessage}"
+                               TextColor="{StaticResource EarthDanger}"
+                               FontSize="13" VerticalOptions="Center"
+                               LineBreakMode="WordWrap"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

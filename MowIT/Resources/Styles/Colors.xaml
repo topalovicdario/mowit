@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+<Color x:Key="EarthPrimary">#75C915</Color>
+    <Color x:Key="EarthPrimaryDark">#4F8F0E</Color>
+    <Color x:Key="EarthPrimarySoft">#EEF7E9</Color>
+
+    <Color x:Key="EarthSoft">#A3B18A</Color>
+    <Color x:Key="EarthAccent">#DDB892</Color>
+    <Color x:Key="EarthDanger">#C44536</Color>
+    <Color x:Key="EarthWarning">#E09F3E</Color>
+    <Color x:Key="EarthInfo">#6C91BF</Color>
+
+<Color x:Key="Primary">#75C915</Color>
+    <Color x:Key="PrimaryLight">#A8E45C</Color>
+    <Color x:Key="PrimaryDark">#4F8F0E</Color>
+    <Color x:Key="PrimaryDarkText">#E8F5E9</Color>
+    <Color x:Key="Secondary">#A3B18A</Color>
+    <Color x:Key="SecondaryDarkText">#C8D9B8</Color>
+    <Color x:Key="Tertiary">#DDB892</Color>
+
+<Color x:Key="StatusError">#C44536</Color>
+    <Color x:Key="StatusWarning">#E09F3E</Color>
+    <Color x:Key="StatusInfo">#6C91BF</Color>
+    <Color x:Key="StatusSuccess">#75C915</Color>
+
+<Color x:Key="TextMain">#151915</Color>
+    <Color x:Key="TextMuted">#747B74</Color>
+
+    <Color x:Key="TextMainDark">#FFFFFF</Color>
+    <Color x:Key="TextMutedDark">#BBBBBB</Color>
+
+<Color x:Key="PageBg">#F2F3EF</Color>
+    <Color x:Key="CardBg">#FFFFFF</Color>
+    <Color x:Key="SoftPanelBg">#F3F6F1</Color>
+    <Color x:Key="InputBg">#F3F6F1</Color>
+
+    <Color x:Key="PageBgDark">#121412</Color>
+    <Color x:Key="CardBgDark">#1E221E</Color>
+    <Color x:Key="SoftPanelBgDark">#252A25</Color>
+    <Color x:Key="InputBgDark">#252A25</Color>
+
+<Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#000000</Color>
+    <Color x:Key="OffBlack">#1E1E1E</Color>
+
+    <Color x:Key="Gray100">#E1E1E1</Color>
+    <Color x:Key="Gray200">#C8C8C8</Color>
+    <Color x:Key="Gray300">#ACACAC</Color>
+    <Color x:Key="Gray400">#919191</Color>
+    <Color x:Key="Gray500">#6E6E6E</Color>
+    <Color x:Key="Gray600">#404040</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="Gray950">#141414</Color>
+
+<Color x:Key="Magenta">#D600AA</Color>
+    <Color x:Key="MidnightBlue">#190649</Color>
+
+<SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}" />
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}" />
+
+    <SolidColorBrush x:Key="EarthPrimaryBrush" Color="{StaticResource EarthPrimary}" />
+    <SolidColorBrush x:Key="EarthSoftBrush" Color="{StaticResource EarthSoft}" />
+    <SolidColorBrush x:Key="EarthAccentBrush" Color="{StaticResource EarthAccent}" />
+    <SolidColorBrush x:Key="EarthDangerBrush" Color="{StaticResource EarthDanger}" />
+    <SolidColorBrush x:Key="EarthWarningBrush" Color="{StaticResource EarthWarning}" />
+    <SolidColorBrush x:Key="EarthInfoBrush" Color="{StaticResource EarthInfo}" />
+
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}" />
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}" />
+
+    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}" />
+    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}" />
+    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}" />
+    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}" />
+    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}" />
+    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}" />
+    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}" />
+    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}" />
+
+</ResourceDictionary>

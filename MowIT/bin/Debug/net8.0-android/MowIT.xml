@@ -1,0 +1,1022 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MowIT</name>
+    </assembly>
+    <members>
+        <member name="T:MowIT.Presentation.ViewModels.Base.BaseViewModel">
+            <inheritdoc/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.Base.BaseViewModel.IsBusy">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.Base.BaseViewModel._isBusy"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.Base.BaseViewModel.Title">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.Base.BaseViewModel._title"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.Base.BaseViewModel.ErrorMessage">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.Base.BaseViewModel._errorMessage"/>
+        </member>
+        <member name="T:MowIT.Presentation.ViewModels.ControlViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.LinearVelocity">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._linearVelocity"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.AngularVelocity">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._angularVelocity"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.CurrentPosition">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._currentPosition"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.CurrentGpsText">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._currentGpsText"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.GpsAccuracyMm">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._gpsAccuracyMm"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.GpsFixType">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._gpsFixType"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.HasDatum">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._hasDatum"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.HasPath">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._hasPath"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.IsRecordingBoundary">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._isRecordingBoundary"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.BoundaryPointCount">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._boundaryPointCount"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.PolygonCount">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._polygonCount"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.LastEvent">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._lastEvent"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.MowerLocal">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._mowerLocal"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.MowerHeadingRad">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._mowerHeadingRad"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.IsManualMode">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._isManualMode"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.IsMotorMoving">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ControlViewModel._isMotorMoving"/>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ControlViewModel.captureBaseCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ControlViewModel.CaptureBaseCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.CaptureBaseCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ControlViewModel.CaptureBaseAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ControlViewModel.startBoundaryRecordingCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ControlViewModel.StartBoundaryRecordingCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.StartBoundaryRecordingCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ControlViewModel.StartBoundaryRecordingAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ControlViewModel.capturePointCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ControlViewModel.CapturePointCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.CapturePointCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ControlViewModel.CapturePointAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ControlViewModel.captureOutlineCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ControlViewModel.CaptureOutlineCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.CaptureOutlineCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ControlViewModel.CaptureOutlineAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ControlViewModel.saveBoundaryCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ControlViewModel.SaveBoundaryCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ControlViewModel.SaveBoundaryCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ControlViewModel.SaveBoundaryAsync"/>.</summary>
+        </member>
+        <member name="T:MowIT.Presentation.ViewModels.DashboardViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.Latitude">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._latitude"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.Longitude">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._longitude"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.GpsAccuracyMm">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._gpsAccuracyMm"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.GpsFixType">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._gpsFixType"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.AccX">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._accX"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.AccY">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._accY"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.AccZ">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._accZ"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.GyroX">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._gyroX"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.GyroY">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._gyroY"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.GyroZ">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._gyroZ"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.RobotState">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._robotState"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.BatteryPct">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._batteryPct"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.BladeOn">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._bladeOn"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.RainDetected">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._rainDetected"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.CurrentSpeed">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._currentSpeed"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.UptimeMinutes">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._uptimeMinutes"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.IsConnected">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._isConnected"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.HasDatum">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._hasDatum"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.HasPath">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._hasPath"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.LastEvent">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.DashboardViewModel._lastEvent"/>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.DashboardViewModel.startMowingCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.DashboardViewModel.StartMowingCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.StartMowingCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.DashboardViewModel.StartMowingAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.DashboardViewModel.stopCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.DashboardViewModel.StopCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.DashboardViewModel.StopCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.DashboardViewModel.StopAsync"/>.</summary>
+        </member>
+        <member name="T:MowIT.Presentation.ViewModels.LoginViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.LoginViewModel.ProfileName">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.LoginViewModel._profileName"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.LoginViewModel.RememberMe">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.LoginViewModel._rememberMe"/>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.LoginViewModel.continueCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.LoginViewModel.ContinueCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.LoginViewModel.ContinueCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.LoginViewModel.ContinueAsync"/>.</summary>
+        </member>
+        <member name="T:MowIT.Presentation.ViewModels.MapViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.RobotPosition">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.MapViewModel._robotPosition"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.RobotHeadingDeg">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.MapViewModel._robotHeadingDeg"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.IsDrawingMode">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.MapViewModel._isDrawingMode"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.IsSendingBoundary">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.MapViewModel._isSendingBoundary"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.SendProgress">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.MapViewModel._sendProgress"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.ZoneName">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.MapViewModel._zoneName"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.ShowZonesPanel">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.MapViewModel._showZonesPanel"/>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.toggleDrawingModeCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.ToggleDrawingModeCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.ToggleDrawingModeCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.ToggleDrawingMode"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.undoLastPointCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.UndoLastPointCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.UndoLastPointCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.UndoLastPoint"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.clearBoundaryPointsCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.ClearBoundaryPointsCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.ClearBoundaryPointsCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.ClearBoundaryPoints"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.toggleZonesPanelCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.ToggleZonesPanelCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.ToggleZonesPanelCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.ToggleZonesPanel"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.loadZoneCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.LoadZoneCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.LoadZoneCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand`1"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.LoadZone(MowIT.Domain.Entities.BoundaryZone)"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.deleteZoneCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.DeleteZoneCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.DeleteZoneCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.DeleteZoneAsync(MowIT.Domain.Entities.BoundaryZone)"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.saveZoneLocallyCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.SaveZoneLocallyCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.SaveZoneLocallyCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.SaveZoneLocallyAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.MapViewModel.sendBoundaryToRobotCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.MapViewModel.SendBoundaryToRobotCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.MapViewModel.SendBoundaryToRobotCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.MapViewModel.SendBoundaryToRobotAsync"/>.</summary>
+        </member>
+        <member name="T:MowIT.Presentation.ViewModels.ScanViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScanViewModel.IsScanning">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScanViewModel._isScanning"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScanViewModel.ConnectionState">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScanViewModel._connectionState"/>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ScanViewModel.toggleScanCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ScanViewModel.ToggleScanCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScanViewModel.ToggleScanCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ScanViewModel.ToggleScanAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ScanViewModel.connectCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ScanViewModel.ConnectCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScanViewModel.ConnectCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ScanViewModel.ConnectAsync(MowIT.Domain.Entities.MowerDevice)"/>.</summary>
+        </member>
+        <member name="T:MowIT.Presentation.ViewModels.ScheduleViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.Monday">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._monday"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.Tuesday">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._tuesday"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.Wednesday">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._wednesday"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.Thursday">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._thursday"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.Friday">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._friday"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.Saturday">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._saturday"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.Sunday">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._sunday"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.StartTime">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._startTime"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.DurationMinutes">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._durationMinutes"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.ScheduleName">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._scheduleName"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.SelectedZone">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._selectedZone"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.IsSendingZone">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._isSendingZone"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.SendProgress">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._sendProgress"/>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.SendingZoneLabel">
+            <inheritdoc cref="F:MowIT.Presentation.ViewModels.ScheduleViewModel._sendingZoneLabel"/>
+        </member>
+        <member name="M:MowIT.Presentation.ViewModels.ScheduleViewModel.OnDurationMinutesChanged(System.Int32)">
+            <summary>Executes the logic for when <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.DurationMinutes"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.DurationMinutes"/> is changed.</remarks>
+        </member>
+        <member name="M:MowIT.Presentation.ViewModels.ScheduleViewModel.OnSendProgressChanged(System.Int32)">
+            <summary>Executes the logic for when <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.SendProgress"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.SendProgress"/> is changed.</remarks>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ScheduleViewModel.toggleDayCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.ToggleDayCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.ToggleDayCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand`1"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ScheduleViewModel.ToggleDay(System.String)"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ScheduleViewModel.saveScheduleCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.SaveScheduleCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.SaveScheduleCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ScheduleViewModel.SaveScheduleAsync"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ScheduleViewModel.toggleScheduleCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.ToggleScheduleCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.ToggleScheduleCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ScheduleViewModel.ToggleScheduleAsync(MowIT.Domain.Entities.MowingSchedule)"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ScheduleViewModel.deleteScheduleCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.DeleteScheduleCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.DeleteScheduleCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ScheduleViewModel.DeleteScheduleAsync(MowIT.Domain.Entities.MowingSchedule)"/>.</summary>
+        </member>
+        <member name="F:MowIT.Presentation.ViewModels.ScheduleViewModel.mowNowCommand">
+            <summary>The backing field for <see cref="P:MowIT.Presentation.ViewModels.ScheduleViewModel.MowNowCommand"/>.</summary>
+        </member>
+        <member name="P:MowIT.Presentation.ViewModels.ScheduleViewModel.MowNowCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand`1"/> instance wrapping <see cref="M:MowIT.Presentation.ViewModels.ScheduleViewModel.MowNowAsync(MowIT.Domain.Entities.MowingSchedule)"/>.</summary>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Button.TextColorTo(Microsoft.Maui.Controls.Button,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_DatePicker.TextColorTo(Microsoft.Maui.Controls.DatePicker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Editor.TextColorTo(Microsoft.Maui.Controls.Editor,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Entry.TextColorTo(Microsoft.Maui.Controls.Entry,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_InputView.TextColorTo(Microsoft.Maui.Controls.InputView,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Label.TextColorTo(Microsoft.Maui.Controls.Label,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Picker.TextColorTo(Microsoft.Maui.Controls.Picker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_RadioButton.TextColorTo(Microsoft.Maui.Controls.RadioButton,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_SearchBar.TextColorTo(Microsoft.Maui.Controls.SearchBar,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_TimePicker.TextColorTo(Microsoft.Maui.Controls.TimePicker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsBusy" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsNotBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsNotBusy" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Title">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Title" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ErrorMessage">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ErrorMessage" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.LinearVelocity">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "LinearVelocity" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.AngularVelocity">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "AngularVelocity" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentPosition">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentPosition" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentGpsText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentGpsText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GpsAccuracyMm">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GpsAccuracyMm" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GpsFixType">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GpsFixType" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasDatum">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasDatum" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SetupStatusText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SetupStatusText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CanStartRecording">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CanStartRecording" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasPath">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasPath" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsRecordingBoundary">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsRecordingBoundary" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsNotRecording">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsNotRecording" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.RecordingStatusText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "RecordingStatusText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CanCapturePoint">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CanCapturePoint" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CanCaptureOutline">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CanCaptureOutline" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CanSaveBoundary">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CanSaveBoundary" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.BoundaryPointCount">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "BoundaryPointCount" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.PolygonCount">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "PolygonCount" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.LastEvent">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "LastEvent" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.MowerLocal">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "MowerLocal" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.MowerHeadingRad">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "MowerHeadingRad" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsManualMode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsManualMode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ManualStateText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ManualStateText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsMotorMoving">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsMotorMoving" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Latitude">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Latitude" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasGpsFix">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasGpsFix" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GpsPositionText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GpsPositionText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GpsSecondaryText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GpsSecondaryText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Longitude">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Longitude" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GpsAccuracyLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GpsAccuracyLabel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.AccX">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "AccX" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasImu">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasImu" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.AccY">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "AccY" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.AccZ">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "AccZ" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GyroX">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GyroX" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GyroY">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GyroY" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.GyroZ">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "GyroZ" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.RobotState">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "RobotState" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StateColor">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StateColor" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StateLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StateLabel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.BatteryPct">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "BatteryPct" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasBattery">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasBattery" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.BladeOn">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "BladeOn" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasBlade">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasBlade" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.RainDetected">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "RainDetected" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasRain">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasRain" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentSpeed">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentSpeed" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasSpeed">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasSpeed" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.UptimeMinutes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "UptimeMinutes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.HasUptime">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "HasUptime" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.UptimeLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "UptimeLabel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsConnected">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsConnected" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CanStartMowing">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CanStartMowing" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ReadinessText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ReadinessText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ProfileName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ProfileName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.RememberMe">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "RememberMe" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.RobotPosition">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "RobotPosition" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.RobotHeadingDeg">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "RobotHeadingDeg" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsDrawingMode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsDrawingMode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsSendingBoundary">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsSendingBoundary" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SendProgress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SendProgress" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ZoneName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ZoneName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ShowZonesPanel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ShowZonesPanel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsScanning">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsScanning" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ScanButtonText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ScanButtonText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ConnectionState">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ConnectionState" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Monday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Monday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Tuesday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Tuesday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Wednesday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Wednesday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Thursday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Thursday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Friday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Friday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Saturday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Saturday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Sunday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Sunday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.StartTime">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "StartTime" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.DurationMinutes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "DurationMinutes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.ScheduleName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "ScheduleName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SelectedZone">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SelectedZone" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsSendingZone">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsSendingZone" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SendingZoneLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SendingZoneLabel" generated properties.</summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsBusy" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsNotBusy">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsNotBusy" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Title">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Title" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ErrorMessage">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ErrorMessage" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.LinearVelocity">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "LinearVelocity" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.AngularVelocity">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "AngularVelocity" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentPosition">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentPosition" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentGpsText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentGpsText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GpsAccuracyMm">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GpsAccuracyMm" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GpsFixType">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GpsFixType" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasDatum">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasDatum" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SetupStatusText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SetupStatusText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CanStartRecording">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CanStartRecording" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasPath">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasPath" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsRecordingBoundary">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsRecordingBoundary" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsNotRecording">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsNotRecording" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.RecordingStatusText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "RecordingStatusText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CanCapturePoint">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CanCapturePoint" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CanCaptureOutline">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CanCaptureOutline" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CanSaveBoundary">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CanSaveBoundary" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.BoundaryPointCount">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "BoundaryPointCount" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.PolygonCount">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "PolygonCount" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.LastEvent">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "LastEvent" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.MowerLocal">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "MowerLocal" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.MowerHeadingRad">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "MowerHeadingRad" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsManualMode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsManualMode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ManualStateText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ManualStateText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsMotorMoving">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsMotorMoving" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Latitude">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Latitude" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasGpsFix">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasGpsFix" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GpsPositionText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GpsPositionText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GpsSecondaryText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GpsSecondaryText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Longitude">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Longitude" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GpsAccuracyLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GpsAccuracyLabel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.AccX">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "AccX" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasImu">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasImu" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.AccY">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "AccY" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.AccZ">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "AccZ" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GyroX">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GyroX" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GyroY">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GyroY" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.GyroZ">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "GyroZ" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.RobotState">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "RobotState" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StateColor">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StateColor" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StateLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StateLabel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.BatteryPct">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "BatteryPct" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasBattery">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasBattery" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.BladeOn">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "BladeOn" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasBlade">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasBlade" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.RainDetected">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "RainDetected" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasRain">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasRain" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentSpeed">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentSpeed" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasSpeed">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasSpeed" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.UptimeMinutes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "UptimeMinutes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.HasUptime">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "HasUptime" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.UptimeLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "UptimeLabel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsConnected">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsConnected" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CanStartMowing">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CanStartMowing" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ReadinessText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ReadinessText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ProfileName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ProfileName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.RememberMe">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "RememberMe" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.RobotPosition">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "RobotPosition" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.RobotHeadingDeg">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "RobotHeadingDeg" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsDrawingMode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsDrawingMode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsSendingBoundary">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsSendingBoundary" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SendProgress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SendProgress" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ZoneName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ZoneName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ShowZonesPanel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ShowZonesPanel" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsScanning">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsScanning" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ScanButtonText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ScanButtonText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ConnectionState">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ConnectionState" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Monday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Monday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Tuesday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Tuesday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Wednesday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Wednesday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Thursday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Thursday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Friday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Friday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Saturday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Saturday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Sunday">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Sunday" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.StartTime">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "StartTime" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.DurationMinutes">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "DurationMinutes" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.ScheduleName">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "ScheduleName" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SelectedZone">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SelectedZone" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsSendingZone">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsSendingZone" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SendingZoneLabel">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SendingZoneLabel" generated properties.</summary>
+        </member>
+    </members>
+</doc>

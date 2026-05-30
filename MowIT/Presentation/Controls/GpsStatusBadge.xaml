@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MowIT.Presentation.Controls.GpsStatusBadge">
+    <Border x:Name="BadgeBorder"
+            StrokeShape="RoundRectangle 6"
+            Padding="6,3">
+        <HorizontalStackLayout Spacing="4">
+            <Label x:Name="FixLabel" FontSize="11" TextColor="White" FontAttributes="Bold"
+                   VerticalOptions="Center"/>
+            <Label x:Name="AccuracyLabel" FontSize="10" TextColor="White" Opacity="0.85"
+                   VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+    </Border>
+</ContentView>
