@@ -113,7 +113,6 @@ public IObservable<MowerDevice> DiscoveredDevices => _deviceSubject;
             _winDeviceIds.Clear();
             var byName = new Dictionary<string, (Guid Id, string? Svc, string? Dev)>(StringComparer.OrdinalIgnoreCase);
 
-            // Primary: RFCOMM service enumeration — gives us a direct service ID for connect
             var rfcommSel   = RfcommDeviceService.GetDeviceSelector(RfcommServiceId.SerialPort);
             var rfcommInfos = await DeviceInformation.FindAllAsync(rfcommSel).AsTask(ct);
             foreach (var d in rfcommInfos)
@@ -121,7 +120,6 @@ public IObservable<MowerDevice> DiscoveredDevices => _deviceSubject;
                 byName[d.Name] = (Guid.NewGuid(), d.Id, null);
             }
 
-            // Always also enumerate paired BT devices — needed as fallback if the SDP service ID is stale
             var btSel   = BluetoothDevice.GetDeviceSelectorFromPairingState(true);
             var btInfos = await DeviceInformation.FindAllAsync(btSel).AsTask(ct);
             foreach (var d in btInfos)
@@ -307,8 +305,7 @@ public async Task SendMotorCommandAsync(float linearVel, float angularVel)
             RobotAction.Stop                 => "MOWER/MANUAL/OFF",
             RobotAction.BoundaryRecordStart  => "MOWER/CAPTURE/START",
             RobotAction.BoundaryCapturePoint => "MOWER/CAPTURE/POINT",
-            // Save = END: firmware no longer exposes /EXIT; /END finalizes and saves
-            // the boundary in one shot.
+          
             RobotAction.BoundaryRecordEnd    => "MOWER/CAPTURE/END",
             RobotAction.BoundaryClear        => "MOWER/CAPTURE/START",
             RobotAction.StartRoute           => "MOWER/START",
@@ -354,16 +351,14 @@ throw new NotSupportedException(
 
 private void SendCommand(string cmd)
     {
-        // StreamWriter is not thread-safe and the GPS/accuracy timers fire on threadpool
-        // threads concurrently with UI commands. Without this lock, byte streams interleave
-        // and the ESP32 silently drops the corrupted message.
+        
         try
         {
             lock (_writeLock)
             {
                 _writer?.Write(cmd + "<");
             }
-            // Skip the chatty 2 Hz GPS/accuracy polls so the log isn't drowned in them.
+            
             if (!cmd.StartsWith("GPS/GET/", StringComparison.Ordinal))
                 _evt.Tx(Source, cmd);
         }
@@ -465,8 +460,7 @@ foreach (var prefix in _msgPrefixes)
 
 private void ParseLine(string line)
     {
-        // Skip the spammy GPS/POS/* and GPS/ACCURACY/* responses (2 Hz) — they'd drown the log.
-        // Everything else (capture acks, mower replies, errors) gets full visibility.
+        
         bool noisy = line.StartsWith("GPS/POS/", StringComparison.OrdinalIgnoreCase)
                    || line.StartsWith("GPS/ACCURACY/", StringComparison.OrdinalIgnoreCase);
         if (!noisy) _evt.Rx(Source, line);
@@ -522,9 +516,7 @@ private void ParseLine(string line)
                     bool   ok     = parts[3].Equals("DONE", StringComparison.OrdinalIgnoreCase);
                     string reason = (!ok && parts.Length >= 5) ? parts[4] : string.Empty;
 
-                    // FAIL/BUSY means firmware already has a persisted datum and refuses to overwrite
-                    // outside manual mode. From the app's perspective, the datum exists — surface that
-                    // so the boundary controls unlock without forcing the user into manual mode.
+               
                     bool alreadyHasDatum = !ok && reason.Equals("BUSY", StringComparison.OrdinalIgnoreCase);
 
                     if (ok || alreadyHasDatum)
@@ -638,14 +630,13 @@ private void ParseLine(string line)
                         Timestamp = DateTime.UtcNow
                     };
                     _statusSubject.OnNext(_latestStatus);
-                    // Firmware sets CONFIG_PATH=false on every START. Tell the rest of the
-                    // app so HasPath drops and the Mow button locks until Done succeeds again.
+                   
                     WeakReferenceMessenger.Default.Send(new BoundaryClearedMessage());
                 }
                 break;
 
             case "POINT":
-                // Firmware: MOWER/CAPTURE/POINT/OK/<xCm>,<yCm>  or  …/POINT/FAIL/<reason>
+               
                 if (ok && parts.Length >= 5)
                 {
                     var xy = parts[4].Split(',');
@@ -671,8 +662,7 @@ private void ParseLine(string line)
                 break;
 
             case "END":
-                // Firmware: MOWER/CAPTURE/END/OK   (no coords — finalizes & saves)
-                //          MOWER/CAPTURE/END/FAIL  (no reason in current firmware)
+             
                 string endReason = (!ok && parts.Length >= 5) ? parts[4] : null;
                 WeakReferenceMessenger.Default.Send(new CaptureEndMessage(ok, endReason));
                 if (!ok)

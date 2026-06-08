@@ -18,11 +18,7 @@ namespace MowIT;
 public static partial class MauiProgram
 {
 
-    // Toggle between the real GreenTitan over Bluetooth SPP and the local simulator.
-    // The simulator emits the same messages as the firmware (BaseCaptured, BoundaryPointCaptured,
-    // OutlineCaptured, ExitCaptured, CaptureEnd with FailReason, RobotErrorMessage) and runs the
-    // commands through the same CommandPipeline + state-machine, so flipping this line lets you
-    // dry-run the full UI flow before flashing the ESP32.
+   
     private static readonly IRobotServiceFactory RobotFactory =
              new GreenTitanSppFactory();
 

@@ -11,26 +11,21 @@ using MowIT.Domain.Interfaces;
 
 namespace MowIT.Infrastructure.Simulator;
 
-// Local stand-in for the GreenTitan firmware. Emits the same messages as GreenTitanSppService
-// (BaseCaptured / BoundaryPointCaptured / OutlineCaptured / ExitCaptured / CaptureEnd /
-// RobotErrorMessage) so the entire ControlViewModel + local-map UI can be exercised without
-// flashing the ESP32. Local NEU coordinates are computed by flat-earth projection of the
-// simulated GPS against the captured datum — exactly what the firmware does internally.
+
 public sealed class SimulatedRobotService
     : IRobotScanner, IRobotConnection, IRobotSensors, IRobotControl, IRobotBoundary, IDisposable
 {
     private const double MetersPerDegree = 111_319.444;
     private const double TickSeconds     = 0.2;
-    private const float  GoodAccuracyMm  = 50f;     // base capture allowed under this
+    private const float  GoodAccuracyMm  = 50f;     
     private const float  StartAccuracyMm = 800f;
     private const float  RtkAccuracyMm   = 12f;
-    private const double AccuracyRampMmPerSec = 100; // ~8 s to converge
+    private const double AccuracyRampMmPerSec = 100;
 
-    // Differential-drive style motion model. Real mowers ramp velocity rather than
-    // jumping to setpoint instantly — these constants give a snappy but believable feel.
-    private const float  LinearAccelMs2  = 0.8f;    // m/s² toward target linear vel
-    private const float  AngularAccelRs2 = 3.0f;    // rad/s² toward target angular vel
-    private const int    ManualWatchdogMs = 600;    // stop motors if no move command for this long
+   
+    private const float  LinearAccelMs2  = 0.8f;    
+    private const float  AngularAccelRs2 = 3.0f;    
+    private const int    ManualWatchdogMs = 600;    
 
     private readonly Subject<MowerDevice>          _deviceSubject = new();
     private readonly Subject<RobotConnectionState> _stateSubject  = new();
@@ -39,35 +34,30 @@ public sealed class SimulatedRobotService
 
     private IDisposable? _sensorTimer;
 
-    // World state (mower's "true" position the sim is tracking)
-    private double   _lat = 43.8563, _lon = 18.4131;     // Sarajevo-ish default
-    // Heading in radians. Math convention: 0 = +X axis (east), +CCW. We start the mower
-    // facing North (π/2) so pushing joystick UP moves it UP on the screen — intuitive
-    // since the local map draws +Y = North = up.
+    private double   _lat = 43.8563, _lon = 18.4131;     
+ 
     private float    _heading = (float)(Math.PI / 2.0);
     private float    _accMm = StartAccuracyMm;
     private DateTime _connectedAt;
     private int      _battery = 85;
 
-    // Datum
+    
     private double _baseLat, _baseLon;
     private bool   _hasDatum;
 
-    // Capture session
+   
     private bool                                  _capturing;
     private readonly List<LocalPoint>             _activePoints   = new();
     private readonly List<List<LocalPoint>>       _closedPolygons = new();
     private LocalPoint?                           _exitPoint;
-    // Set true once a recording session ended successfully (END/OK). Cleared on the next
-    // RecordStart. StartMowing requires this to be true — same as the real firmware where
-    // the controller refuses to mow without a saved CONFIG_PATH.
+   
     private bool                                  _pathSaved;
 
-    // Control — split target (commanded) vs. actual (smoothed) velocity for realistic feel.
+    
     private bool       _manualMode;
-    private float      _targetLinear, _targetAngular;   // most recent joystick command
-    private float      _actualLinear, _actualAngular;   // ramped toward target every tick
-    private DateTime?  _lastMoveCmdAt;                  // for the manual-mode watchdog
+    private float      _targetLinear, _targetAngular;   
+    private float      _actualLinear, _actualAngular;   
+    private DateTime?  _lastMoveCmdAt;                  
     private RobotState _state = RobotState.Idle;
 
     private readonly ILogger<SimulatedRobotService> _logger;
@@ -82,13 +72,11 @@ public sealed class SimulatedRobotService
         StartSensorSimulation();
     }
 
-    // Mirror GreenTitanSppService.SendCommand log style — what the real firmware would have seen
-    // arriving over BT. Same wording in-app and in debug output.
+  
     private void LogTx(string command)  => _evt.Tx   (Source, command);
     private void LogRx(string response) => _evt.Rx   (Source, response);
     private void LogState(string what)  => _evt.State(Source, what);
 
-    // ─── IRobotScanner ─────────────────────────────────────────────────────────
 
     public IObservable<MowerDevice> DiscoveredDevices => _deviceSubject;
     public bool IsScanning { get; private set; }
@@ -115,7 +103,7 @@ public sealed class SimulatedRobotService
         return Task.CompletedTask;
     }
 
-    // ─── IRobotConnection ──────────────────────────────────────────────────────
+
 
     public IObservable<RobotConnectionState> ConnectionState => _stateSubject;
     public RobotConnectionState CurrentState { get; private set; } = RobotConnectionState.Disconnected;
@@ -145,7 +133,7 @@ public sealed class SimulatedRobotService
         return Task.CompletedTask;
     }
 
-    // ─── IRobotSensors ─────────────────────────────────────────────────────────
+
 
     public IObservable<SensorSnapshot> SensorStream => _sensorSubject;
     public IObservable<RobotStatus>    StatusStream  => _statusSubject;
@@ -163,9 +151,7 @@ public sealed class SimulatedRobotService
     {
         if (CurrentState != RobotConnectionState.Connected) return;
 
-        // Manual-mode watchdog — mirrors the firmware's bluetooth_task watchdog. If the joystick
-        // hasn't sent a fresh move command recently, force the target velocities back to zero so
-        // the mower doesn't drift forever when the user lifts their finger or the BT link stalls.
+
         if (_manualMode && _lastMoveCmdAt is DateTime t
             && (DateTime.UtcNow - t).TotalMilliseconds > ManualWatchdogMs)
         {
@@ -173,12 +159,12 @@ public sealed class SimulatedRobotService
             _targetAngular = 0;
         }
 
-        // Decide what we're doing this tick: autopilot mowing, or manual joystick drive.
+       
         float targetLin, targetAng;
         if (_state == RobotState.Mowing)
         {
             targetLin = 0.3f;
-            targetAng = 0.075f;  // gentle curve while autopilot
+            targetAng = 0.075f;  
         }
         else if (_manualMode)
         {
@@ -191,21 +177,19 @@ public sealed class SimulatedRobotService
             targetAng = 0;
         }
 
-        // Ramp the actual velocities toward the targets. Real motors don't snap.
+ 
         _actualLinear  = ApproachLinear (_actualLinear,  targetLin, LinearAccelMs2  * (float)TickSeconds);
         _actualAngular = ApproachLinear(_actualAngular, targetAng, AngularAccelRs2 * (float)TickSeconds);
 
-        // Integrate unicycle kinematics: heading first, then translate forward.
         _heading += _actualAngular * (float)TickSeconds;
         if (Math.Abs(_actualLinear) > 0.001f)
             StepGps(_actualLinear, _heading);
 
-        // Ramp GPS accuracy from 800 mm down to ~12 mm (~8 s after connect).
+    
         var elapsed = (DateTime.UtcNow - _connectedAt).TotalSeconds;
         _accMm = (float)Math.Max(RtkAccuracyMm, StartAccuracyMm - AccuracyRampMmPerSec * elapsed);
 
-        // Local NEU position in metres relative to the captured datum.
-        // X = east (m), Y = north (m). Matches the projection used by the local map.
+       
         float posXm = 0, posYm = 0;
         if (_hasDatum)
         {
@@ -235,11 +219,11 @@ public sealed class SimulatedRobotService
         LastSensor = snap;
         _sensorSubject.OnNext(snap);
 
-        // Status broadcast roughly once per second.
+    
         if (DateTime.UtcNow.Millisecond < 200) EmitStatus();
     }
 
-    // Move `current` toward `target` by at most `step` (in absolute units).
+ 
     private static float ApproachLinear(float current, float target, float step)
     {
         float diff = target - current;
@@ -279,16 +263,14 @@ public sealed class SimulatedRobotService
             return;
         }
 
-        // Mirror GreenTitanSppService.SendMotorCommandAsync: auto-enable manual mode on the
-        // first non-zero command so the user can just grab the joystick without flipping any
-        // toggle. A zero command (joystick released) doesn't trigger the auto-enable.
+       
         if (!_manualMode && (Math.Abs(linearVel) > 0.001f || Math.Abs(angularVel) > 0.001f))
         {
             LogTx("MOWER/MANUAL/ON   (auto)");
             _manualMode = true;
-            EmitSensorData();          // surface IsManualMode=true to the UI immediately
+            EmitSensorData();        
             LogRx("MOWER/MANUAL/ON/OK");
-            await Task.Delay(50);      // small delay so the UI sees the mode flip
+            await Task.Delay(50);      
         }
 
         if (!_manualMode) return;
@@ -308,8 +290,6 @@ public sealed class SimulatedRobotService
             return;
         }
 
-        // Map every RobotAction to the BT command string the SPP service would send, so the
-        // sim log reads exactly like a real-device log.
         string cmd = action switch
         {
             RobotAction.CaptureBase           => "GPS/CAPTURE/BASE",
@@ -328,7 +308,7 @@ public sealed class SimulatedRobotService
         };
         LogTx(cmd);
 
-        // Small RTT to mimic BT round-trip and let UI animations breathe.
+     
         await Task.Delay(120);
 
         switch (action)
@@ -396,10 +376,7 @@ public sealed class SimulatedRobotService
 
     private void HandleStartMowing()
     {
-        // Match real-firmware preconditions: must have a saved boundary path AND a base datum.
-        // The ESP32 controller refuses SIGNAL_START_MOWING without CONFIG_PATH set, even though
-        // bluetooth_task.cpp itself just forwards the signal — so the failure surfaces as a
-        // missing-path issue.
+       
         if (!_hasDatum)
         {
             LogRx("MOWER/START/FAIL/NO_DATUM");
@@ -429,8 +406,7 @@ public sealed class SimulatedRobotService
         _baseLat   = _lat;
         _baseLon   = _lon;
         _hasDatum  = true;
-        // Capturing a fresh base invalidates any saved path — match firmware's
-        // CONFIG_PATH=false behaviour in bluetooth_task.cpp.
+        
         _pathSaved = false;
         LogRx($"GPS/CAPTURE/BASE/OK  lat={_baseLat:F7} lon={_baseLon:F7}");
         WeakReferenceMessenger.Default.Send(new BaseCapturedMessage());
@@ -439,8 +415,7 @@ public sealed class SimulatedRobotService
 
     private void HandleRecordStart()
     {
-        // Idempotent: clears prior state and re-arms (mirrors firmware bluetooth_task.cpp,
-        // which also sets CONFIG_PATH=false on every START so the saved boundary is invalidated).
+    
         _activePoints.Clear();
         _closedPolygons.Clear();
         _exitPoint = null;
@@ -547,7 +522,7 @@ public sealed class SimulatedRobotService
         return new LocalPoint(xCm, yCm);
     }
 
-    // ─── IRobotBoundary ────────────────────────────────────────────────────────
+
 
     public async Task SendBoundaryAsync(BoundaryZone zone, IProgress<int>? progress = null)
     {
@@ -570,7 +545,7 @@ public sealed class SimulatedRobotService
         return Task.CompletedTask;
     }
 
-    // ─── IDisposable ───────────────────────────────────────────────────────────
+  
 
     public void Dispose()
     {

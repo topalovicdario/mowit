@@ -13,8 +13,7 @@ public class BatteryCheckHandler : CommandHandler
     {
         if (ctx.IsMotorCommand) return Task.CompletedTask;
 
-        // BatteryPct == 0 is the default for an uninitialized field, used by devices
-        // that don't report battery telemetry (e.g. GreenTitan). Treat 0 as unknown.
+       
         var status = _sensors.LastStatus;
         if (status is not null && status.BatteryPct > 0 && status.BatteryPct < CriticalThreshold)
             ctx.Abort($"Battery critically low ({status.BatteryPct}%) — command blocked");
