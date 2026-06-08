@@ -5,10 +5,10 @@ namespace MowIT.Application.Logging;
 
 public enum EventLogLevel
 {
-    Tx,        // command sent over BT
-    Rx,        // response received over BT
-    Info,      // ordinary status
-    State,     // app/sim/firmware state mutation
+    Tx,       
+    Rx,        
+    Info,      
+    State,     
     Warn,
     Error,
 }
@@ -34,20 +34,16 @@ public sealed record EventLogEntry(
 
     public Color LevelColor => Level switch
     {
-        EventLogLevel.Tx    => Color.FromArgb("#2E7D32"),  // forest green — outgoing
-        EventLogLevel.Rx    => Color.FromArgb("#1565C0"),  // blue — incoming
-        EventLogLevel.Info  => Color.FromArgb("#546E7A"),  // slate
-        EventLogLevel.State => Color.FromArgb("#6A1B9A"),  // purple — state change
-        EventLogLevel.Warn  => Color.FromArgb("#EF6C00"),  // orange
-        EventLogLevel.Error => Color.FromArgb("#C62828"),  // red
+        EventLogLevel.Tx    => Color.FromArgb("#2E7D32"),  
+        EventLogLevel.Rx    => Color.FromArgb("#1565C0"),  
+        EventLogLevel.Info  => Color.FromArgb("#546E7A"),  
+        EventLogLevel.State => Color.FromArgb("#6A1B9A"),  
+        EventLogLevel.Warn  => Color.FromArgb("#EF6C00"),  
+        EventLogLevel.Error => Color.FromArgb("#C62828"),  
         _                   => Colors.Gray,
     };
 }
 
-// Single shared event log for the whole app. Every service / view-model funnels through here
-// so the user can see, in one place, exactly what the app sent, what the firmware (or simulator)
-// replied, and how the app's own state mutated in response. Mirrors every entry to ILogger so
-// the same lines show up in the debug output window for offline diffing.
 public sealed class EventLogService
 {
     private const int MaxEntries = 400;
@@ -69,8 +65,7 @@ public sealed class EventLogService
     {
         var entry = new EventLogEntry(DateTime.Now, level, source, message);
 
-        // Mirror to ILogger so the entry shows up in Visual Studio's Debug Output
-        // / Android Logcat with the same wording you see in-app.
+      
         var line = $"[{source}] {entry.LevelTag} {message}";
         switch (level)
         {

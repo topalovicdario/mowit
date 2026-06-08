@@ -10,6 +10,5 @@ public record BaseCapturedMessage();
 public record BoundaryPointCapturedMessage(int XCm, int YCm);
 public record OutlineCapturedMessage();
 public record ExitCapturedMessage(int XCm, int YCm);
-// Sent on MOWER/CAPTURE/START/OK — firmware sets CONFIG_PATH=false there, so any saved
-// boundary is now invalidated. Dashboard uses this to flip HasPath off.
+
 public record BoundaryClearedMessage();

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MowIT")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+7db38505aae52adcc98079634adbc165f917b04b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+8f4fdc9ffdd31092adc96dd14f7aa68fe9249445")]
 [assembly: System.Reflection.AssemblyProductAttribute("MowIT")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MowIT")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

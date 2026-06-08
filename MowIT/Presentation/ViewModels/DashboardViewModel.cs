@@ -188,7 +188,7 @@ public partial class DashboardViewModel : BaseViewModel
                 _evt.State(Source, $"connection → {s}  (IsConnected={IsConnected})");
             }));
 
-        // Track datum/path readiness from the same messages the Control page reacts to.
+      
         WeakReferenceMessenger.Default.Register<BaseCapturedMessage>(this, (_, _) =>
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -243,7 +243,7 @@ public partial class DashboardViewModel : BaseViewModel
             }));
     }
 
-    // Translate firmware-style codes into something a user can act on.
+
     private static string FriendlyError(string code) => code switch
     {
         "MOWER_START_FAIL/NO_DATUM" => "✗ Can't start — set base first",
@@ -291,7 +291,7 @@ public partial class DashboardViewModel : BaseViewModel
     private static void Toast(string text)
     {
         try { _ = CommunityToolkit.Maui.Alerts.Toast.Make(text, ToastDuration.Short).Show(); }
-        catch { /* toast not available on every platform */ }
+        catch { }
     }
 
     [RelayCommand(CanExecute = nameof(CanStartMowing))]
@@ -310,11 +310,6 @@ public partial class DashboardViewModel : BaseViewModel
 
     public override void OnDisappearing()
     {
-        // Don't dispose subs / unregister handlers here — MAUI Shell tabs cache pages,
-        // so this VM is reused when the user comes back. Tearing things down here means
-        // CaptureEndMessage / BaseCapturedMessage emitted while we're away never reach us,
-        // and HasPath / HasDatum stay false → Mow stays disabled forever.
-        // Subscriptions live for the app's lifetime, which is fine since the Dashboard tab
-        // is always present.
+        
     }
 }

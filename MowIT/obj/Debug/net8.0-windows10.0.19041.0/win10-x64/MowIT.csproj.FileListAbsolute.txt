@@ -1072,3 +1072,8 @@ C:\mowit\MowIT\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\pri.resfiles.inter
 C:\mowit\MowIT\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\qualifiers.txt
 C:\mowit\MowIT\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\qualifiers.txt.intermediate
 C:\mowit\MowIT\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\MultipleQualifiersPerDimensionFound.txt
+C:\mowit\MowIT\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Microsoft.Maui.Controls.HotReload.Forms.dll
+C:\mowit\MowIT\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Microsoft.VisualStudio.DesignTools.MobileTapContracts.dll
+C:\mowit\MowIT\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Microsoft.VisualStudio.DesignTools.TapContract.dll
+C:\mowit\MowIT\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Microsoft.VisualStudio.DesignTools.XamlTapContract.dll
+C:\mowit\MowIT\obj\Debug\net8.0-windows10.0.19041.0\win10-x64\MowIT.sourcelink.json

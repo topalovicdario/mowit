@@ -75,14 +75,13 @@ public partial class ControlViewModel : BaseViewModel
 
     [ObservableProperty] private string _lastEvent = "Waiting…";
 
-    // Local NEU frame state — drives the on-screen local map.
+    
     public ObservableCollection<List<LocalPoint>> ClosedPolygons { get; } = new();
     public ObservableCollection<LocalPoint>       ActivePolygon  { get; } = new();
     [ObservableProperty] private LocalPoint? _mowerLocal;
     [ObservableProperty] private float _mowerHeadingRad;
 
-    // Base GPS — captured when the user presses Set Base. Used to project subsequent GPS
-    // readings into the local NEU frame so the mower position can be drawn on the local map.
+
     private GpsPoint? _baseGps;
 
     [ObservableProperty]
@@ -99,17 +98,10 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
     public bool IsNotRecording => !IsRecordingBoundary;
     public bool CanStartRecording => HasDatum && !IsRecordingBoundary;
 
-    // Strict workflow gates — both app and mower stay in lock-step.
-    // OUTLINE is a polygon SEPARATOR on the firmware — it closes the current outline
-    // and starts a new one. So the flow is:
-    //   single zone:      Point × N (≥3) → Save
-    //   multiple zones:   Point × N → Outline → Point × M → Save
-    // Save sends MOWER/CAPTURE/END which finalizes & persists the boundary in one shot.
+
     public bool CanCapturePoint    => IsRecordingBoundary;
     public bool CanCaptureOutline  => IsRecordingBoundary && BoundaryPointCount >= 3;
-    // Save is allowed when either:
-    //   - the in-progress polygon has ≥3 points (firmware will close it on END), or
-    //   - at least one polygon was already closed via Outline and no points are pending.
+  
     public bool CanSaveBoundary    => IsRecordingBoundary
                                       && (BoundaryPointCount >= 3
                                           || (PolygonCount >= 1 && BoundaryPointCount == 0));
@@ -166,8 +158,7 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
                 if (RobotTrail.Count == 0 || RobotTrail[^1].DistanceTo(s.Gps) > 0.5)
                     RobotTrail.Add(s.Gps);
 
-                // Project current GPS to local NEU cm if we have a base. This is what the
-                // local map uses to draw the mower position.
+               
                 MowerLocal       = ProjectToLocal(s.Gps);
                 MowerHeadingRad  = s.HeadingRad;
             }));
@@ -245,7 +236,6 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
         WeakReferenceMessenger.Default.Register<RobotErrorMessage>(this, (_, m) =>
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                // Capture-related failures abort the whole session so app + mower stay in sync.
                 if (m.Code.StartsWith("CAPTURE_", StringComparison.OrdinalIgnoreCase)
                     || m.Code.StartsWith("BASE_CAPTURE_", StringComparison.OrdinalIgnoreCase))
                 {
@@ -267,11 +257,7 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
 
     private void AbortRecording(string reason)
     {
-        // App returns to "not recording" locally. We don't send anything to the firmware here:
-        // BoundaryClear maps to MOWER/CAPTURE/START which would re-arm capture and bounce us
-        // straight back into the recording state via the status stream. The firmware just waits
-        // in its capture-started state harmlessly until the user clicks Record again, which sends
-        // a fresh START that clears + re-arms (it's idempotent).
+       
         IsRecordingBoundary = false;
         BoundaryPointCount  = 0;
         PolygonCount        = 0;
@@ -281,8 +267,7 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
         LogAndToast($"✗ Recording aborted ({reason}) — please press Record to start over");
     }
 
-    // Flat-earth projection of GPS to local NEU centimetres relative to the captured base.
-    // X = east (cm), Y = north (cm). Approximation good for distances < ~1 km from base.
+    
     private LocalPoint? ProjectToLocal(GpsPoint gps)
     {
         if (_baseGps is not GpsPoint b) return null;
@@ -300,7 +285,7 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
         LastEvent = $"{DateTime.Now:HH:mm:ss}  {text}";
         _evt.Info(Source, text);
         try { _ = Toast.Make(text, ToastDuration.Short).Show(); }
-        catch { /* toast unavailable on some platforms — non-fatal */ }
+        catch { }
     }
 
 public void OnJoystickMoved(float normalizedX, float normalizedY)
@@ -349,8 +334,7 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
     [RelayCommand(CanExecute = nameof(CanCaptureOutline))]
     private async Task CaptureOutlineAsync()
     {
-        // OUTLINE on firmware = "save current outline, start a new one" — used as a
-        // separator between polygons when the boundary has multiple disjoint zones.
+       
         _evt.Info(Source, $"user pressed New Outline  (closing current with {BoundaryPointCount} pts, starting next)");
         await RunSafeAsync(() => _control.SendActionAsync(RobotAction.CaptureOutline));
     }
@@ -364,12 +348,7 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
 
 public override void OnDisappearing()
     {
-        // Stop motors when leaving so the mower doesn't keep moving in the background.
-        // Do NOT dispose the streams or unregister message handlers here:
-        // MAUI Shell tabs CACHE pages, so this VM is reused when the user comes back.
-        // The constructor only runs once, so disposing here would leave the VM permanently
-        // deaf to status updates / capture messages on the next visit (the bug that caused
-        // "press Record, nothing happens" after a Dashboard round-trip).
+        
         _ = _control.SendActionAsync(RobotAction.Stop);
     }
 }
