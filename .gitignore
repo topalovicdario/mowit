@@ -12,8 +12,12 @@ obj/
 
 
 .vscode/
+.claude/
 
 packages/
 
 
 *.log
+
+*.db
+*.db3
