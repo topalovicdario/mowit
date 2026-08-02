@@ -1,4 +1,5 @@
 using MowIT.Domain.Entities;
+using MowIT.Domain.Geometry;
 using MowIT.Domain.Interfaces;
 
 namespace MowIT.Domain.Strategies;
@@ -9,52 +10,49 @@ public class BoustrophedonStrategy : IMowingStrategy
 
     public List<GpsPoint> GenerateRoute(BoundaryZone zone, float spacingMeters = 0.3f)
     {
-        var pts = zone.Points;
-        if (pts.Count < 3) return [];
+        if (zone.Points.Count < 3) return [];
+        if (spacingMeters <= 0) spacingMeters = 0.3f;
 
-        double minLat = pts.Min(p => p.Latitude);
-        double maxLat = pts.Max(p => p.Latitude);
-        double minLon = pts.Min(p => p.Longitude);
-        double maxLon = pts.Max(p => p.Longitude);
+        var proj    = new LocalProjection(zone.Points[0]);
+        var polygon = zone.Points.Select(proj.ToLocal).ToList();
 
-double spacingDeg = spacingMeters / 111_320.0;
+        double minNorth = polygon.Min(p => p.North);
+        double maxNorth = polygon.Max(p => p.North);
 
-        var route = new List<GpsPoint>();
+        var local = new List<(double East, double North)>();
         bool leftToRight = true;
 
-        for (double lat = minLat + spacingDeg / 2; lat <= maxLat; lat += spacingDeg)
+        for (double north = minNorth + spacingMeters / 2; north <= maxNorth; north += spacingMeters)
         {
-            var intersections = GetRowIntersections(pts, lat);
-            if (intersections.Count < 2) continue;
+            var crossings = RowCrossings(polygon, north);
+            if (crossings.Count < 2) continue;
 
-            intersections.Sort();
+            crossings.Sort();
+            if (!leftToRight) crossings.Reverse();
 
-            if (!leftToRight) intersections.Reverse();
-
-            for (int i = 0; i < intersections.Count - 1; i += 2)
+            for (int i = 0; i + 1 < crossings.Count; i += 2)
             {
-                double startLon = intersections[i];
-                double endLon   = intersections[i + 1];
-                int steps = Math.Max(1, (int)((endLon - startLon) / spacingDeg));
+                double startEast = crossings[i];
+                double endEast   = crossings[i + 1];
+                int    steps     = Math.Max(1, (int)(Math.Abs(endEast - startEast) / spacingMeters));
 
                 for (int s = 0; s <= steps; s++)
                 {
-                    double lon = leftToRight
-                        ? startLon + s * (endLon - startLon) / steps
-                        : endLon   - s * (endLon - startLon) / steps;
-                    route.Add(new GpsPoint { Latitude = lat, Longitude = lon });
+                    double t    = (double)s / steps;
+                    double east = startEast + t * (endEast - startEast);
+                    local.Add((east, north));
                 }
             }
 
             leftToRight = !leftToRight;
         }
 
-        return route;
+        return local.Select(p => proj.ToGps(p.East, p.North)).ToList();
     }
 
-    private static List<double> GetRowIntersections(IList<GpsPoint> polygon, double lat)
+    private static List<double> RowCrossings(IReadOnlyList<(double East, double North)> polygon, double north)
     {
-        var intersections = new List<double>();
+        var crossings = new List<double>();
         int n = polygon.Count;
 
         for (int i = 0; i < n; i++)
@@ -62,15 +60,14 @@ double spacingDeg = spacingMeters / 111_320.0;
             var a = polygon[i];
             var b = polygon[(i + 1) % n];
 
-            if ((a.Latitude <= lat && b.Latitude > lat) ||
-                (b.Latitude <= lat && a.Latitude > lat))
+            if ((a.North <= north && b.North > north) ||
+                (b.North <= north && a.North > north))
             {
-                double t   = (lat - a.Latitude) / (b.Latitude - a.Latitude);
-                double lon = a.Longitude + t * (b.Longitude - a.Longitude);
-                intersections.Add(lon);
+                double t = (north - a.North) / (b.North - a.North);
+                crossings.Add(a.East + t * (b.East - a.East));
             }
         }
 
-        return intersections;
+        return crossings;
     }
 }
