@@ -28,7 +28,6 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
-	<!-- Replace YOUR_GOOGLE_MAPS_API_KEY with a real key from console.cloud.google.com -->
 	<key>GMSApiKey</key>
 	<string>YOUR_GOOGLE_MAPS_API_KEY</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
