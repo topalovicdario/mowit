@@ -91,7 +91,7 @@
                 <CollectionView ItemsSource="{Binding SavedZones}" HeightRequest="180">
 
                     <CollectionView.EmptyView>
-                        <Label Text="No zones yet — draw a boundary and save it."
+                        <Label Text="No zones yet - draw a boundary and save it."
                                TextColor="{StaticResource TextMuted}"
                                FontSize="13" Margin="0,4"/>
                     </CollectionView.EmptyView>
@@ -166,7 +166,7 @@
 <Border StrokeShape="RoundRectangle 14" Stroke="Transparent"
                         BackgroundColor="{StaticResource InputBg}" Padding="14,4">
                     <Entry Text="{Binding ZoneName}"
-                           Placeholder="Zone name…"
+                           Placeholder="Zone name..."
                            FontSize="14"
                            TextColor="{StaticResource TextMain}"
                            PlaceholderColor="{StaticResource TextMuted}"/>
@@ -209,7 +209,71 @@
 
                 </Grid>
 
-<ProgressBar
+<BoxView HeightRequest="1" Color="{StaticResource SoftPanelBg}"
+                         IsVisible="{Binding CanCalculateRoute}"/>
+
+                <Label Text="ROUTE TYPE"
+                       IsVisible="{Binding CanCalculateRoute}"
+                       FontSize="10" FontAttributes="Bold"
+                       CharacterSpacing="1.5"
+                       TextColor="{StaticResource TextMuted}"/>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8"
+                      IsVisible="{Binding CanCalculateRoute}">
+                    <Button Grid.Column="0"
+                            Text="Boustrophedon"
+                            Command="{Binding SelectStrategyCommand}"
+                            CommandParameter="0"
+                            BackgroundColor="{Binding IsStrategy0, Converter={StaticResource BoolToEarthOrGrey}}"
+                            TextColor="White"
+                            CornerRadius="14"
+                            HeightRequest="38"
+                            FontAttributes="Bold"
+                            FontSize="11"/>
+                    <Button Grid.Column="1"
+                            Text="Spiral"
+                            Command="{Binding SelectStrategyCommand}"
+                            CommandParameter="1"
+                            BackgroundColor="{Binding IsStrategy1, Converter={StaticResource BoolToEarthOrGrey}}"
+                            TextColor="White"
+                            CornerRadius="14"
+                            HeightRequest="38"
+                            FontAttributes="Bold"
+                            FontSize="11"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8"
+                      IsVisible="{Binding CanCalculateRoute}">
+                    <Button Grid.Column="0"
+                            Text="🧮 Calc Route"
+                            Command="{Binding CalculateRouteCommand}"
+                            BackgroundColor="{StaticResource SoftPanelBg}"
+                            TextColor="{StaticResource TextMain}"
+                            CornerRadius="16"
+                            HeightRequest="38"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            Padding="12,0"/>
+
+                    <Button Grid.Column="1"
+                            Text="▶ Mow"
+                            Command="{Binding SendRouteToRobotCommand}"
+                            IsEnabled="{Binding CanSendRoute}"
+                            BackgroundColor="{StaticResource EarthPrimary}"
+                            TextColor="White"
+                            CornerRadius="16"
+                            HeightRequest="38"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            Padding="16,0"/>
+                </Grid>
+
+                <Label Text="{Binding RouteInfo}"
+                       IsVisible="{Binding CanCalculateRoute}"
+                       FontSize="11"
+                       TextColor="{StaticResource TextMuted}"/>
+
+                <ProgressBar
                     Progress="{Binding SendProgress, Converter={StaticResource PctToFraction}}"
                     IsVisible="{Binding IsSendingBoundary}"
                     HeightRequest="8"/>

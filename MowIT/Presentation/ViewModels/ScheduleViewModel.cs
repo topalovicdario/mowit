@@ -20,7 +20,6 @@ public partial class ScheduleViewModel : BaseViewModel
 [ObservableProperty] private bool     _monday, _tuesday, _wednesday,
                                           _thursday, _friday, _saturday, _sunday;
     [ObservableProperty] private TimeSpan _startTime       = new(8, 0, 0);
-    [ObservableProperty] private int      _durationMinutes = 60;
     [ObservableProperty] private string   _scheduleName    = "Weekly Mow";
     [ObservableProperty] private BoundaryZone? _selectedZone;
 
@@ -39,7 +38,6 @@ public partial class ScheduleViewModel : BaseViewModel
         (Sunday,    DayOfWeek.Sunday)
     }.Where(x => x.Item1).Select(x => x.Item2).ToArray();
 
-    public string DurationLabel => $"{DurationMinutes / 60}h {DurationMinutes % 60}m";
     public double SendFraction  => SendProgress / 100.0;
 
     public ScheduleViewModel(
@@ -99,7 +97,7 @@ public partial class ScheduleViewModel : BaseViewModel
         {
             ActiveDays      = SelectedDays,
             StartTime       = StartTime,
-            DurationMinutes = DurationMinutes,
+            DurationMinutes = 60,
             IsActive        = true,
             ZoneName        = SelectedZone?.Name ?? string.Empty,
             ZoneId          = SelectedZone?.Id
@@ -136,8 +134,8 @@ public partial class ScheduleViewModel : BaseViewModel
             IsSendingZone    = true;
             SendProgress     = 0;
             SendingZoneLabel = schedule.ZoneId.HasValue
-                ? $"Sending \"{schedule.ZoneName}\" to robot…"
-                : "Starting mow with onboard zone…";
+                ? $"Sending \"{schedule.ZoneName}\" to robot..."
+                : "Starting mow with onboard zone...";
 
             if (schedule.ZoneId.HasValue)
             {
@@ -162,8 +160,6 @@ public partial class ScheduleViewModel : BaseViewModel
         OnPropertyChanged(nameof(SendFraction));
     }
 
-    partial void OnDurationMinutesChanged(int value)
-        => OnPropertyChanged(nameof(DurationLabel));
 
     partial void OnSendProgressChanged(int value)
         => OnPropertyChanged(nameof(SendFraction));

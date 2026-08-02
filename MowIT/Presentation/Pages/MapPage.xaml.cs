@@ -17,6 +17,7 @@ public partial class MapPage : ContentPage
     private readonly MapViewModel _vm;
     private WritableLayer? _robotLayer;
     private WritableLayer? _boundaryLayer;
+    private WritableLayer? _routeLayer;
     private WritableLayer? _trailLayer;
     private WritableLayer? _savedZonesLayer;
     private bool _mapCentred;
@@ -32,6 +33,8 @@ public partial class MapPage : ContentPage
         {
             if (e.PropertyName == nameof(MapViewModel.RobotPosition))
                 UpdateRobotPin();
+            else if (e.PropertyName == nameof(MapViewModel.RouteVersion))
+                UpdateRoute();
         };
         _vm.BoundaryPoints.CollectionChanged += (_, _) => UpdateBoundary();
         _vm.RobotTrail.CollectionChanged     += (_, _) => UpdateTrail();
@@ -45,11 +48,13 @@ public partial class MapPage : ContentPage
         _savedZonesLayer = new WritableLayer { Name = "SavedZones", Style = null };
         _trailLayer      = new WritableLayer { Name = "Trail",       Style = null };
         _boundaryLayer   = new WritableLayer { Name = "Boundary",    Style = null };
+        _routeLayer      = new WritableLayer { Name = "Route",       Style = null };
         _robotLayer      = new WritableLayer { Name = "Robot",       Style = null };
 
         MapView.Map.Layers.Add(_savedZonesLayer);
         MapView.Map.Layers.Add(_trailLayer);
         MapView.Map.Layers.Add(_boundaryLayer);
+        MapView.Map.Layers.Add(_routeLayer);
         MapView.Map.Layers.Add(_robotLayer);
 
         MapView.Map.Info += OnMapInfo;
@@ -145,6 +150,26 @@ public partial class MapPage : ContentPage
                 SymbolType  = SymbolType.Ellipse
             });
             _boundaryLayer.Add(dot);
+        }
+
+        MapView.RefreshGraphics();
+    }
+
+    private void UpdateRoute()
+    {
+        if (_routeLayer is null) return;
+        _routeLayer.Clear();
+
+        var route = _vm.RoutePoints;
+        if (route.Count >= 2)
+        {
+            var line = new GeometryFeature(new LineString(route.Select(ToCoord).ToArray()));
+            line.Styles.Add(new VectorStyle
+            {
+                Fill = null,
+                Line = new Pen(MColor.FromArgb(230, 255, 152, 0), 2)
+            });
+            _routeLayer.Add(line);
         }
 
         MapView.RefreshGraphics();

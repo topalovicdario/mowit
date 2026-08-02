@@ -16,7 +16,7 @@ public class BatteryCheckHandler : CommandHandler
        
         var status = _sensors.LastStatus;
         if (status is not null && status.BatteryPct > 0 && status.BatteryPct < CriticalThreshold)
-            ctx.Abort($"Battery critically low ({status.BatteryPct}%) — command blocked");
+            ctx.Abort($"Battery critically low ({status.BatteryPct}%) - command blocked");
 
         return Task.CompletedTask;
     }

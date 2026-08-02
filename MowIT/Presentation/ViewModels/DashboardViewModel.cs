@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using MowIT.Application.Logging;
 using MowIT.Application.Messages;
+using MowIT.Application.Services;
 using MowIT.Domain.Entities;
 using MowIT.Domain.Enums;
 using MowIT.Domain.Interfaces;
@@ -21,48 +22,16 @@ public partial class DashboardViewModel : BaseViewModel
     private readonly IRobotConnection _connection;
     private readonly ILogger<DashboardViewModel> _logger;
     private readonly EventLogService _evt;
+    private readonly LastMowSession  _lastMow;
     private const string Source = "DASH";
 
     public EventLogService EventLog => _evt;
-    private IDisposable? _sensorSub, _statusSub, _connSub;
-
-    private const int AccHistoryCapacity = 60;
-    public ObservableCollection<float> AccXHistory { get; } = new();
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasGpsFix))]
-    [NotifyPropertyChangedFor(nameof(GpsPositionText))]
-    [NotifyPropertyChangedFor(nameof(GpsSecondaryText))]
-    private double _latitude;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasGpsFix))]
-    [NotifyPropertyChangedFor(nameof(GpsPositionText))]
-    [NotifyPropertyChangedFor(nameof(GpsSecondaryText))]
-    private double _longitude;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(GpsAccuracyLabel))]
-    private float _gpsAccuracyMm;
-
-    [ObservableProperty] private GpsFixType _gpsFixType;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasImu))]
-    private float _accX;
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasImu))]
-    private float _accY;
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasImu))]
-    private float _accZ;
-    [ObservableProperty] private float _gyroX;
-    [ObservableProperty] private float _gyroY;
-    [ObservableProperty] private float _gyroZ;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StateColor))]
     [NotifyPropertyChangedFor(nameof(StateLabel))]
+    [NotifyPropertyChangedFor(nameof(IsOn))]
+    [NotifyPropertyChangedFor(nameof(OnOffLabel))]
     private RobotState _robotState;
 
     [ObservableProperty]
@@ -71,6 +40,8 @@ public partial class DashboardViewModel : BaseViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasBlade))]
+    [NotifyPropertyChangedFor(nameof(BladeColor))]
+    [NotifyPropertyChangedFor(nameof(BladeStateLabel))]
     private bool _bladeOn;
 
     [ObservableProperty]
@@ -78,18 +49,9 @@ public partial class DashboardViewModel : BaseViewModel
     private bool _rainDetected;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSpeed))]
-    private float _currentSpeed;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasUptime))]
-    [NotifyPropertyChangedFor(nameof(UptimeLabel))]
-    private int _uptimeMinutes;
-
-    // Connection + boundary readiness — drive button gating + readable status text.
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStartMowing))]
     [NotifyPropertyChangedFor(nameof(ReadinessText))]
+    [NotifyPropertyChangedFor(nameof(ConnectionLabel))]
     [NotifyCanExecuteChangedFor(nameof(StartMowingCommand))]
     private bool _isConnected;
 
@@ -105,15 +67,105 @@ public partial class DashboardViewModel : BaseViewModel
     [NotifyCanExecuteChangedFor(nameof(StartMowingCommand))]
     private bool _hasPath;
 
-    [ObservableProperty] private string _lastEvent = "";
+    [ObservableProperty] private string _lastMowedLabel = "Never";
 
-    public bool HasGpsFix  => Latitude != 0 || Longitude != 0 || GpsFixType != GpsFixType.NoFix;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SpeedLabel))]
+    private float _speedMps;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GpsFixLabel))]
+    [NotifyPropertyChangedFor(nameof(GpsFixColor))]
+    private GpsFixType _gpsFix;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GpsAccuracyLabel))]
+    private float _gpsAccuracyMm;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HeadingLabel))]
+    private float _headingRad;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ModeLabel))]
+    [NotifyPropertyChangedFor(nameof(ModeColor))]
+    private bool _isManualMode;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MotionLabel))]
+    [NotifyPropertyChangedFor(nameof(MotionColor))]
+    private bool _isMotorMoving;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UptimeLabel))]
+    private int _uptimeMinutes;
+
     public bool HasBattery => BatteryPct > 0;
-    public bool HasImu     => AccX != 0 || AccY != 0 || AccZ != 0;
-    public bool HasSpeed   => CurrentSpeed > 0.01f;
     public bool HasBlade   => BladeOn;
     public bool HasRain    => RainDetected;
-    public bool HasUptime  => UptimeMinutes > 0;
+
+    public Color BladeColor => BladeOn ? Color.FromArgb("#4CAF50") : Color.FromArgb("#9AA5A0");
+    public string BladeStateLabel => BladeOn ? "ON" : "OFF";
+
+    public string SpeedLabel => $"{Math.Abs(SpeedMps):0.00} m/s";
+
+    public string GpsFixLabel => GpsFix switch
+    {
+        GpsFixType.RtkFixed => "RTK Fixed",
+        GpsFixType.RtkFloat => "RTK Float",
+        GpsFixType.Standard => "GPS",
+        _                   => "No Fix"
+    };
+
+    public Color GpsFixColor => GpsFix switch
+    {
+        GpsFixType.RtkFixed => Color.FromArgb("#4CAF50"),
+        GpsFixType.RtkFloat => Color.FromArgb("#2196F3"),
+        GpsFixType.Standard => Color.FromArgb("#FF9800"),
+        _                   => Color.FromArgb("#F44336")
+    };
+
+    public string GpsAccuracyLabel => GpsFix == GpsFixType.NoFix
+        ? "no signal"
+        : $"± {GpsAccuracyMm / 10f:0.0} cm";
+
+    public string HeadingLabel
+    {
+        get
+        {
+            var deg = HeadingRad * 180.0 / Math.PI;
+            deg = ((deg % 360) + 360) % 360;
+            string[] dirs = { "N", "NE", "E", "SE", "S", "SW", "W", "NW" };
+            var idx = (int)Math.Round(deg / 45.0) % 8;
+            return $"{dirs[idx]} {deg:0}°";
+        }
+    }
+
+    public string ModeLabel  => IsManualMode ? "Manual" : "Auto";
+    public Color  ModeColor  => IsManualMode ? Color.FromArgb("#FF9800") : Color.FromArgb("#4CAF50");
+
+    public string MotionLabel => IsMotorMoving ? "Moving" : "Stopped";
+    public Color  MotionColor => IsMotorMoving ? Color.FromArgb("#4CAF50") : Color.FromArgb("#9AA5A0");
+
+    public string UptimeLabel => UptimeMinutes <= 0
+        ? "-"
+        : UptimeMinutes < 60
+            ? $"{UptimeMinutes}m"
+            : $"{UptimeMinutes / 60}h {UptimeMinutes % 60}m";
+
+    public bool IsOn => RobotState != RobotState.Idle && RobotState != RobotState.Error;
+    public string OnOffLabel => IsOn ? "ON" : "OFF";
+
+    public string ConnectionLabel => IsConnected ? "Connected" : "Disconnected";
+
+    public string Greeting
+    {
+        get
+        {
+            var name = Preferences.Get("profile_name", string.Empty);
+            return string.IsNullOrWhiteSpace(name) ? "GreenTitan dashboard" : $"Welcome, {name}";
+        }
+    }
 
     public bool CanStartMowing => IsConnected && HasDatum && HasPath && RobotState != RobotState.Mowing;
 
@@ -124,17 +176,6 @@ public partial class DashboardViewModel : BaseViewModel
         (_, _, false)  => "Record + save a boundary",
         _              => "Ready to mow"
     };
-
-    public string GpsPositionText  => HasGpsFix ? $"{Latitude:F6}°" : "No fix";
-    public string GpsSecondaryText => HasGpsFix ? $"{Longitude:F6}°" : "Waiting for GPS signal…";
-
-    public string GpsAccuracyLabel => GpsAccuracyMm <= 0
-        ? "–"
-        : GpsAccuracyMm < 50
-            ? $"RTK ±{GpsAccuracyMm:F0}mm"
-            : $"±{GpsAccuracyMm / 1000:F2}m";
-
-    public string UptimeLabel => $"{UptimeMinutes / 60}h {UptimeMinutes % 60}m";
 
     public Color StateColor => RobotState switch
     {
@@ -164,38 +205,43 @@ public partial class DashboardViewModel : BaseViewModel
         IRobotControl control,
         IRobotConnection connection,
         ILogger<DashboardViewModel> logger,
-        EventLogService evt)
+        EventLogService evt,
+        LastMowSession lastMow)
     {
         _sensors    = sensors;
         _control    = control;
         _connection = connection;
         _logger     = logger;
         _evt        = evt;
+        _lastMow    = lastMow;
         Title       = "Dashboard";
 
         IsConnected = connection.IsConnected;
+        RefreshLastMowedLabel();
+        _lastMow.Changed += (_, _) => MainThread.BeginInvokeOnMainThread(RefreshLastMowedLabel);
 
-        _sensorSub = _sensors.SensorStream
-            .Subscribe(s => MainThread.BeginInvokeOnMainThread(() => UpdateSensorData(s)));
-
-        _statusSub = _sensors.StatusStream
+        _sensors.StatusStream
+            .Sample(TimeSpan.FromSeconds(1))
             .Subscribe(s => MainThread.BeginInvokeOnMainThread(() => UpdateStatus(s)));
 
-        _connSub = _connection.ConnectionState
+        _sensors.SensorStream
+            .Sample(TimeSpan.FromMilliseconds(500))
+            .Subscribe(s => MainThread.BeginInvokeOnMainThread(() => UpdateSensor(s)));
+
+        _connection.ConnectionState
             .Subscribe(s => MainThread.BeginInvokeOnMainThread(() =>
             {
                 IsConnected = s == RobotConnectionState.Connected;
-                _evt.State(Source, $"connection → {s}  (IsConnected={IsConnected})");
+                _evt.State(Source, $"connection to {s}  (IsConnected={IsConnected})");
             }));
 
-      
         WeakReferenceMessenger.Default.Register<BaseCapturedMessage>(this, (_, _) =>
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 HasDatum = true;
                 HasPath  = false;
                 _evt.State(Source, "HasDatum=true, HasPath=false (re-base clears path)");
-                Toast("📍 Base captured");
+                Toast("Base captured");
             }));
 
         WeakReferenceMessenger.Default.Register<CaptureEndMessage>(this, (_, m) =>
@@ -205,7 +251,7 @@ public partial class DashboardViewModel : BaseViewModel
                 {
                     HasPath = true;
                     _evt.State(Source, "HasPath=true (Mow now allowed)");
-                    Toast("✓ Boundary saved — ready to mow");
+                    Toast("Boundary saved - ready to mow");
                 }
                 else
                 {
@@ -224,7 +270,7 @@ public partial class DashboardViewModel : BaseViewModel
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 _evt.State(Source, $"connected to {m.DeviceName}");
-                Toast($"🔗 Connected to {m.DeviceName}");
+                Toast($"Connected to {m.DeviceName}");
             }));
 
         WeakReferenceMessenger.Default.Register<RobotDisconnectedMessage>(this, (_, m) =>
@@ -232,7 +278,7 @@ public partial class DashboardViewModel : BaseViewModel
             {
                 _evt.Warn(Source, $"disconnected ({m.Reason})");
                 IsConnected = false;
-                Toast("⚠ Disconnected from mower");
+                Toast("Disconnected from mower");
             }));
 
         WeakReferenceMessenger.Default.Register<RobotErrorMessage>(this, (_, m) =>
@@ -241,38 +287,26 @@ public partial class DashboardViewModel : BaseViewModel
                 _evt.Error(Source, m.Code);
                 Toast(FriendlyError(m.Code));
             }));
-    }
 
+        WeakReferenceMessenger.Default.Register<GeofenceBreachMessage>(this, (_, m) =>
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                _evt.Warn(Source, $"GEOFENCE breach in \"{m.ZoneName}\" - mower stopped");
+                Toast($"⚠ Left zone \"{m.ZoneName}\" - stopping");
+            }));
+    }
 
     private static string FriendlyError(string code) => code switch
     {
-        "MOWER_START_FAIL/NO_DATUM" => "✗ Can't start — set base first",
-        "MOWER_START_FAIL/NO_PATH"  => "✗ Can't start — record + save a boundary first",
-        "MOWER_START_FAIL"          => "✗ Mower refused to start",
-        "BASE_CAPTURE_FAIL/ACCURACY" => "✗ GPS not accurate enough yet — wait for RTK",
-        var s when s.StartsWith("CAPTURE_POINT_FAIL") => "✗ Couldn't mark point — session reset",
-        var s when s.StartsWith("CAPTURE_OUTLINE_FAIL") => "✗ Couldn't close zone — session reset",
-        var s when s.StartsWith("CAPTURE_EXIT_FAIL") => "✗ Couldn't set exit — session reset",
-        _ => $"⚠ {code}"
+        "MOWER_START_FAIL/NO_DATUM" => "Can't start - set base first",
+        "MOWER_START_FAIL/NO_PATH"  => "Can't start - record + save a boundary first",
+        "MOWER_START_FAIL"          => "Mower refused to start",
+        "BASE_CAPTURE_FAIL/ACCURACY" => "GPS not accurate enough yet - wait for RTK",
+        var s when s.StartsWith("CAPTURE_POINT_FAIL") => "Couldn't mark point - session reset",
+        var s when s.StartsWith("CAPTURE_OUTLINE_FAIL") => "Couldn't close zone - session reset",
+        var s when s.StartsWith("CAPTURE_EXIT_FAIL") => "Couldn't set exit - session reset",
+        _ => $"{code}"
     };
-
-    private void UpdateSensorData(SensorSnapshot s)
-    {
-        Latitude      = s.Gps.Latitude;
-        Longitude     = s.Gps.Longitude;
-        GpsAccuracyMm = s.GpsAccuracyMm;
-        GpsFixType    = s.GpsFixType;
-        AccX = s.AccX; AccY = s.AccY; AccZ = s.AccZ;
-        GyroX = s.GyroX; GyroY = s.GyroY; GyroZ = s.GyroZ;
-        CurrentSpeed  = s.LinearSpeed;
-
-        if (HasImu)
-        {
-            AccXHistory.Add(s.AccX);
-            if (AccXHistory.Count > AccHistoryCapacity)
-                AccXHistory.RemoveAt(0);
-        }
-    }
 
     private void UpdateStatus(RobotStatus s)
     {
@@ -288,6 +322,39 @@ public partial class DashboardViewModel : BaseViewModel
         BatteryPct = s.BatteryPct;
     }
 
+    private void UpdateSensor(SensorSnapshot s)
+    {
+        SpeedMps      = s.LinearSpeed;
+        GpsFix        = s.GpsFixType;
+        GpsAccuracyMm = s.GpsAccuracyMm;
+        HeadingRad    = s.HeadingRad;
+        IsManualMode  = s.IsManualMode;
+        IsMotorMoving = s.IsMotorMoving;
+    }
+
+    private void RefreshLastMowedLabel()
+    {
+        var at = _lastMow.LastMowAtLocal;
+        if (at is null) { LastMowedLabel = "Never"; return; }
+
+        var diff = DateTime.Now - at.Value;
+        LastMowedLabel = diff switch
+        {
+            { TotalMinutes: < 1 }  => "Just now",
+            { TotalMinutes: < 60 } => $"{(int)diff.TotalMinutes}m ago",
+            { TotalHours: < 24 }   => $"{(int)diff.TotalHours}h ago",
+            { TotalDays: < 7 }     => $"{(int)diff.TotalDays}d ago",
+            _                      => at.Value.ToString("dd MMM yyyy")
+        };
+    }
+
+    public override Task OnAppearingAsync()
+    {
+        RefreshLastMowedLabel();
+        OnPropertyChanged(nameof(Greeting));
+        return Task.CompletedTask;
+    }
+
     private static void Toast(string text)
     {
         try { _ = CommunityToolkit.Maui.Alerts.Toast.Make(text, ToastDuration.Short).Show(); }
@@ -298,6 +365,8 @@ public partial class DashboardViewModel : BaseViewModel
     private async Task StartMowingAsync()
     {
         _evt.Info(Source, $"user pressed Mow  (IsConnected={IsConnected} HasDatum={HasDatum} HasPath={HasPath})");
+        _lastMow.MarkMowedNow();
+        RefreshLastMowedLabel();
         await RunSafeAsync(() => _control.SendActionAsync(RobotAction.StartMowing));
     }
 
@@ -306,10 +375,5 @@ public partial class DashboardViewModel : BaseViewModel
     {
         _evt.Info(Source, "user pressed Stop");
         await RunSafeAsync(() => _control.SendActionAsync(RobotAction.Stop));
-    }
-
-    public override void OnDisappearing()
-    {
-        
     }
 }

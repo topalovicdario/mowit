@@ -26,7 +26,9 @@
                  Margin="-70,0,0,-70" InputTransparent="True"/>
 
         <ScrollView>
-            <VerticalStackLayout Padding="32,72,32,40" Spacing="0">
+            <VerticalStackLayout Padding="32,72,32,40" Spacing="0"
+                                 HorizontalOptions="{OnIdiom Default=Fill, Desktop=Center}"
+                                 WidthRequest="{OnIdiom Default=-1, Desktop=460}">
 
 <Border StrokeShape="Ellipse" Stroke="Transparent"
                         WidthRequest="100" HeightRequest="100"

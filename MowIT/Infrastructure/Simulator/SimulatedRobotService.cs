@@ -7,13 +7,15 @@ using MowIT.Application.Logging;
 using MowIT.Application.Messages;
 using MowIT.Domain.Entities;
 using MowIT.Domain.Enums;
+using MowIT.Domain.Geometry;
 using MowIT.Domain.Interfaces;
+using MowIT.Infrastructure.Transport;
 
 namespace MowIT.Infrastructure.Simulator;
 
 
 public sealed class SimulatedRobotService
-    : IRobotScanner, IRobotConnection, IRobotSensors, IRobotControl, IRobotBoundary, IDisposable
+    : IRobotTransport, IDisposable
 {
     private const double MetersPerDegree = 111_319.444;
     private const double TickSeconds     = 0.2;
@@ -50,8 +52,12 @@ public sealed class SimulatedRobotService
     private readonly List<LocalPoint>             _activePoints   = new();
     private readonly List<List<LocalPoint>>       _closedPolygons = new();
     private LocalPoint?                           _exitPoint;
-   
+
     private bool                                  _pathSaved;
+
+    private readonly List<GpsPoint>               _route = new();
+    private int                                   _routeIdx;
+    private const double                          WaypointReachM = 0.30;
 
     
     private bool       _manualMode;
@@ -68,7 +74,7 @@ public sealed class SimulatedRobotService
     {
         _logger = logger;
         _evt    = evt;
-        _evt.Info(Source, "SimulatedRobotService constructed — emulating GreenTitan over fake SPP");
+        _evt.Info(Source, "SimulatedRobotService constructed - emulating GreenTitan over fake SPP");
         StartSensorSimulation();
     }
 
@@ -113,14 +119,14 @@ public sealed class SimulatedRobotService
     {
         CurrentState = RobotConnectionState.Connecting;
         _stateSubject.OnNext(RobotConnectionState.Connecting);
-        LogState($"Connecting to {device.Name}…");
+        LogState($"Connecting to {device.Name}...");
         await Task.Delay(800, ct);
         CurrentState  = RobotConnectionState.Connected;
         _connectedAt  = DateTime.UtcNow;
         _accMm        = StartAccuracyMm;
         _stateSubject.OnNext(RobotConnectionState.Connected);
         WeakReferenceMessenger.Default.Send(new RobotConnectedMessage(device.Name));
-        LogState($"Connected to {device.Name} — GPS accuracy ramp starting at {StartAccuracyMm:F0} mm");
+        LogState($"Connected to {device.Name} - GPS accuracy ramp starting at {StartAccuracyMm:F0} mm");
         return true;
     }
 
@@ -160,30 +166,36 @@ public sealed class SimulatedRobotService
         }
 
        
-        float targetLin, targetAng;
-        if (_state == RobotState.Mowing)
+        if (_state == RobotState.Mowing && _route.Count > 0)
         {
-            targetLin = 0.3f;
-            targetAng = 0.075f;  
-        }
-        else if (_manualMode)
-        {
-            targetLin = _targetLinear;
-            targetAng = _targetAngular;
+            FollowRouteStep();
         }
         else
         {
-            targetLin = 0;
-            targetAng = 0;
+            float targetLin, targetAng;
+            if (_state == RobotState.Mowing)
+            {
+                targetLin = 0.3f;
+                targetAng = 0.075f;
+            }
+            else if (_manualMode)
+            {
+                targetLin = _targetLinear;
+                targetAng = _targetAngular;
+            }
+            else
+            {
+                targetLin = 0;
+                targetAng = 0;
+            }
+
+            _actualLinear  = ApproachLinear(_actualLinear,  targetLin, LinearAccelMs2  * (float)TickSeconds);
+            _actualAngular = ApproachLinear(_actualAngular, targetAng, AngularAccelRs2 * (float)TickSeconds);
+
+            _heading += _actualAngular * (float)TickSeconds;
+            if (Math.Abs(_actualLinear) > 0.001f)
+                StepGps(_actualLinear, _heading);
         }
-
- 
-        _actualLinear  = ApproachLinear (_actualLinear,  targetLin, LinearAccelMs2  * (float)TickSeconds);
-        _actualAngular = ApproachLinear(_actualAngular, targetAng, AngularAccelRs2 * (float)TickSeconds);
-
-        _heading += _actualAngular * (float)TickSeconds;
-        if (Math.Abs(_actualLinear) > 0.001f)
-            StepGps(_actualLinear, _heading);
 
     
         var elapsed = (DateTime.UtcNow - _connectedAt).TotalSeconds;
@@ -193,9 +205,10 @@ public sealed class SimulatedRobotService
         float posXm = 0, posYm = 0;
         if (_hasDatum)
         {
-            double latRad = _baseLat * Math.PI / 180.0;
-            posXm = (float)((_lon - _baseLon) * MetersPerDegree * Math.Cos(latRad));
-            posYm = (float)((_lat - _baseLat) * MetersPerDegree);
+            var (east, north) = new LocalProjection(new GpsPoint(_baseLat, _baseLon))
+                .ToLocal(new GpsPoint(_lat, _lon));
+            posXm = (float)east;
+            posYm = (float)north;
         }
 
         bool moving = Math.Abs(_actualLinear) > 0.01f || Math.Abs(_actualAngular) > 0.01f;
@@ -238,6 +251,32 @@ public sealed class SimulatedRobotService
         _lon += dist * Math.Sin(headingRad) / MetersPerDegree / Math.Cos(_lat * Math.PI / 180.0);
     }
 
+    private void FollowRouteStep()
+    {
+        if (_routeIdx >= _route.Count)
+        {
+            _state         = RobotState.Idle;
+            _actualLinear  = 0;
+            _actualAngular = 0;
+            EmitStatus();
+            LogState("Route complete - mowing finished");
+            return;
+        }
+
+        var target = _route[_routeIdx];
+        var current = new GpsPoint(_lat, _lon);
+        if (current.DistanceTo(target) < WaypointReachM)
+        {
+            _routeIdx++;
+            return;
+        }
+
+        _heading       = (float)(current.BearingTo(target) * Math.PI / 180.0);
+        _actualLinear  = 0.3f;
+        _actualAngular = 0;
+        StepGps(_actualLinear, _heading);
+    }
+
     private void EmitStatus()
     {
         var status = new RobotStatus
@@ -253,13 +292,11 @@ public sealed class SimulatedRobotService
         _statusSubject.OnNext(status);
     }
 
-    // ─── IRobotControl ─────────────────────────────────────────────────────────
-
     public async Task SendMotorCommandAsync(float linearVel, float angularVel)
     {
         if (CurrentState != RobotConnectionState.Connected)
         {
-            _evt.Warn(Source, "motor cmd dropped — not connected");
+            _evt.Warn(Source, "motor cmd dropped - not connected");
             return;
         }
 
@@ -286,7 +323,7 @@ public sealed class SimulatedRobotService
     {
         if (CurrentState != RobotConnectionState.Connected)
         {
-            _evt.Warn(Source, $"action {action} dropped — not connected");
+            _evt.Warn(Source, $"action {action} dropped - not connected");
             return;
         }
 
@@ -376,7 +413,18 @@ public sealed class SimulatedRobotService
 
     private void HandleStartMowing()
     {
-       
+        if (_route.Count > 0)
+        {
+            _lat      = _route[0].Latitude;
+            _lon      = _route[0].Longitude;
+            _routeIdx = Math.Min(1, _route.Count - 1);
+            _state    = RobotState.Mowing;
+            EmitStatus();
+            LogRx("MOWER/START/OK");
+            LogState($"Mowing started - following uploaded route ({_route.Count} waypoints)");
+            return;
+        }
+
         if (!_hasDatum)
         {
             LogRx("MOWER/START/FAIL/NO_DATUM");
@@ -392,7 +440,7 @@ public sealed class SimulatedRobotService
         _state = RobotState.Mowing;
         EmitStatus();
         LogRx("MOWER/START/OK");
-        LogState($"Mowing started — driving from exit ({_exitPoint?.XCm/100f:F2}, {_exitPoint?.YCm/100f:F2}) m");
+        LogState($"Mowing started - driving from exit ({_exitPoint?.XCm/100f:F2}, {_exitPoint?.YCm/100f:F2}) m");
     }
 
     private void HandleCaptureBase()
@@ -410,7 +458,7 @@ public sealed class SimulatedRobotService
         _pathSaved = false;
         LogRx($"GPS/CAPTURE/BASE/OK  lat={_baseLat:F7} lon={_baseLon:F7}");
         WeakReferenceMessenger.Default.Send(new BaseCapturedMessage());
-        LogState("Base datum set — local NEU frame anchored at this GPS");
+        LogState("Base datum set - local NEU frame anchored at this GPS");
     }
 
     private void HandleRecordStart()
@@ -418,13 +466,14 @@ public sealed class SimulatedRobotService
     
         _activePoints.Clear();
         _closedPolygons.Clear();
+        _route.Clear();
         _exitPoint = null;
         _pathSaved = false;
         _capturing = true;
         _state     = RobotState.RecordingBoundary;
         EmitStatus();
         LogRx("MOWER/CAPTURE/START/OK");
-        LogState("Capture session started — clearing any prior polygons + exit + saved-path flag");
+        LogState("Capture session started - clearing any prior polygons + exit + saved-path flag");
         WeakReferenceMessenger.Default.Send(new BoundaryClearedMessage());
     }
 
@@ -440,7 +489,7 @@ public sealed class SimulatedRobotService
         var p = LocalCm();
         _activePoints.Add(p);
         LogRx($"MOWER/CAPTURE/POINT/OK/{(int)p.XCm},{(int)p.YCm}");
-        _evt.Info(Source, $"Point added — active polygon now has {_activePoints.Count} pts");
+        _evt.Info(Source, $"Point added - active polygon now has {_activePoints.Count} pts");
         WeakReferenceMessenger.Default.Send(new BoundaryPointCapturedMessage((int)p.XCm, (int)p.YCm));
     }
 
@@ -510,16 +559,15 @@ public sealed class SimulatedRobotService
 
         _pathSaved = true;
         LogRx($"MOWER/CAPTURE/END/OK  polys={_closedPolygons.Count} exit=({_exitPoint?.XCm/100f:F2}, {_exitPoint?.YCm/100f:F2}) m");
-        LogState("Path saved — Start Mowing is now allowed");
+        LogState("Path saved - Start Mowing is now allowed");
         WeakReferenceMessenger.Default.Send(new CaptureEndMessage(true));
     }
 
     private LocalPoint LocalCm()
     {
-        double latRad = _baseLat * Math.PI / 180.0;
-        float xCm = (float)((_lon - _baseLon) * MetersPerDegree * Math.Cos(latRad) * 100.0);
-        float yCm = (float)((_lat - _baseLat) * MetersPerDegree * 100.0);
-        return new LocalPoint(xCm, yCm);
+        var (east, north) = new LocalProjection(new GpsPoint(_baseLat, _baseLon))
+            .ToLocal(new GpsPoint(_lat, _lon));
+        return new LocalPoint((float)(east * 100.0), (float)(north * 100.0));
     }
 
 
@@ -531,6 +579,12 @@ public sealed class SimulatedRobotService
             await Task.Delay(40);
             progress?.Report((i + 1) * 100 / Math.Max(1, zone.Points.Count));
         }
+
+        _route.Clear();
+        _route.AddRange(zone.Points);
+        _routeIdx  = 0;
+        _pathSaved = true;
+        LogState($"Route uploaded - {_route.Count} waypoints, ready to mow");
     }
 
     public Task SendRouteAsync(List<GpsPoint> route, IProgress<int>? progress = null)

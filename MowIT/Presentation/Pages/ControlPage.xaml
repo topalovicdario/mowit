@@ -5,7 +5,6 @@
     xmlns:vm="clr-namespace:MowIT.Presentation.ViewModels"
     xmlns:controls="clr-namespace:MowIT.Presentation.Controls"
     xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
-    xmlns:logging="clr-namespace:MowIT.Application.Logging"
     x:DataType="vm:ControlViewModel"
     Shell.NavBarIsVisible="False"
     BackgroundColor="{StaticResource PageBg}">
@@ -28,17 +27,40 @@
                 <Label Text="Control"
                        FontSize="30" FontAttributes="Bold"
                        TextColor="{StaticResource TextMain}"/>
-                <Label Text="Setup · boundary · drive"
+                <Label Text="Setup - boundary - drive"
                        FontSize="12" TextColor="{StaticResource TextMuted}"/>
             </VerticalStackLayout>
-            <Border Grid.Column="1" Style="{StaticResource IconBadge}">
-                <Label Text="🤖" FontSize="22"
-                       HorizontalOptions="Center" VerticalOptions="Center"/>
-            </Border>
         </Grid>
 
-<ScrollView Grid.Row="1">
+<Grid Grid.Row="1"
+              HorizontalOptions="{OnIdiom Default=Fill, Desktop=Center}"
+              WidthRequest="{OnIdiom Default=-1, Desktop=1120}"
+              ColumnDefinitions="*,Auto" ColumnSpacing="14">
+
+            <ScrollView Grid.Column="0">
             <VerticalStackLayout Padding="18,4,18,16" Spacing="14">
+
+                <Border StrokeShape="RoundRectangle 20" Stroke="Transparent"
+                        Padding="16,13" BackgroundColor="{Binding MowingColor}">
+                    <Border.Shadow>
+                        <Shadow Brush="#28000000" Offset="0,5" Radius="14"/>
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
+                            <Label Text="{Binding MowingHeadline}"
+                                   FontSize="22" FontAttributes="Bold" TextColor="White"/>
+                            <Label Text="{Binding MowingSubtext}"
+                                   FontSize="11" TextColor="White" Opacity="0.85"/>
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Padding="10,5"
+                                StrokeShape="RoundRectangle 11" Stroke="Transparent"
+                                BackgroundColor="#33FFFFFF" VerticalOptions="Center"
+                                IsVisible="{Binding IsManualMode}">
+                            <Label Text="{Binding ManualStateText}"
+                                   FontSize="11" FontAttributes="Bold" TextColor="White"/>
+                        </Border>
+                    </Grid>
+                </Border>
 
 <Border Stroke="Transparent" StrokeShape="RoundRectangle 24"
                         Padding="16" BackgroundColor="{StaticResource CardBg}">
@@ -53,8 +75,6 @@
                                     WidthRequest="38" HeightRequest="38"
                                     StrokeShape="RoundRectangle 14" Stroke="Transparent"
                                     BackgroundColor="{StaticResource EarthPrimarySoft}">
-                                <Label Text="📍" FontSize="18"
-                                       HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                 <Label Text="GPS" FontSize="10" FontAttributes="Bold"
@@ -78,8 +98,6 @@
                                     WidthRequest="38" HeightRequest="38"
                                     StrokeShape="RoundRectangle 14" Stroke="Transparent"
                                     BackgroundColor="#F0F4EE">
-                                <Label Text="🏁" FontSize="18"
-                                       HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                 <Label Text="DATUM" FontSize="10" FontAttributes="Bold"
@@ -90,7 +108,7 @@
                                            Converter={StaticResource BoolToSuccessColor}}"/>
                             </VerticalStackLayout>
                             <Button Grid.Column="2"
-                                    Text="📍 Set Base"
+                                    Text="Set Base"
                                     Command="{Binding CaptureBaseCommand}"
                                     IsEnabled="{Binding HasGpsFix}"
                                     BackgroundColor="{Binding HasDatum,
@@ -106,8 +124,105 @@
                     </Grid>
                 </Border>
 
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Button Text="Capture"
+                            Command="{Binding SelectModeCommand}" CommandParameter="Drive"
+                            BackgroundColor="{Binding IsDriveMode, Converter={StaticResource BoolToEarthOrGrey}}"
+                            TextColor="White" CornerRadius="14" HeightRequest="40"
+                            Padding="18,0"
+                            FontAttributes="Bold" FontSize="12"/>
+                    <Button Grid.Column="1" Text="Capture and plan"
+                            Command="{Binding SelectModeCommand}" CommandParameter="Plan"
+                            BackgroundColor="{Binding IsPlanMode, Converter={StaticResource BoolToEarthOrGrey}}"
+                            TextColor="White" CornerRadius="14" HeightRequest="40"
+                            FontAttributes="Bold" FontSize="12"/>
+                </Grid>
+
+                <Border Stroke="Transparent" StrokeShape="RoundRectangle 24"
+                        Padding="16" BackgroundColor="{StaticResource CardBg}"
+                        IsVisible="{Binding IsPlanMode}">
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Offset="0,5" Radius="16"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Border Grid.Column="0"
+                                    WidthRequest="38" HeightRequest="38"
+                                    StrokeShape="RoundRectangle 14" Stroke="Transparent"
+                                    BackgroundColor="#EEF4EE">
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                <Label Text="CAPTURE BY DRIVING" FontSize="10" FontAttributes="Bold"
+                                       TextColor="{StaticResource TextMuted}" CharacterSpacing="1.8"/>
+                                <Label Text="{Binding PlanHint}"
+                                       FontSize="13" TextColor="{StaticResource TextMuted}"/>
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                                <Button Text="Undo" Command="{Binding UndoPlanPointCommand}"
+                                        BackgroundColor="{StaticResource SoftPanelBg}"
+                                        TextColor="{StaticResource TextMain}"
+                                        CornerRadius="12" HeightRequest="36"
+                                        FontSize="12" Padding="14,0"/>
+                                <Button Text="Clear" Command="{Binding ClearPlanPointsCommand}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{StaticResource EarthDanger}"
+                                        FontSize="12" HeightRequest="36" Padding="14,0"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+
+                        <Label Text="Set GPS base first to capture points"
+                               FontSize="12" TextColor="{StaticResource TextMuted}"
+                               HorizontalOptions="Center"
+                               IsVisible="{Binding HasDatum, Converter={StaticResource InvertBool}}"/>
+
+                        <Button Text="Capture point"
+                                Command="{Binding CapturePlanPointCommand}"
+                                IsEnabled="{Binding HasDatum}"
+                                Opacity="{Binding HasDatum, Converter={StaticResource BoolToOpacity}}"
+                                BackgroundColor="{StaticResource EarthPrimary}"
+                                TextColor="White" CornerRadius="18"
+                                HeightRequest="50" FontSize="15" FontAttributes="Bold"/>
+
+                        <Label Text="ROUTE TYPE" FontSize="10" FontAttributes="Bold"
+                               CharacterSpacing="1.5" TextColor="{StaticResource TextMuted}"
+                               IsVisible="{Binding CanPickPlanStrategy}"/>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8"
+                              IsVisible="{Binding CanPickPlanStrategy}">
+                            <Button Grid.Column="0" Text="Boustrophedon"
+                                    Command="{Binding SelectPlanStrategyCommand}" CommandParameter="0"
+                                    BackgroundColor="{Binding IsPlanStrategy0, Converter={StaticResource BoolToEarthOrGrey}}"
+                                    TextColor="White" CornerRadius="14" HeightRequest="40"
+                                    FontAttributes="Bold" FontSize="11"/>
+                            <Button Grid.Column="1" Text="Spiral"
+                                    Command="{Binding SelectPlanStrategyCommand}" CommandParameter="1"
+                                    BackgroundColor="{Binding IsPlanStrategy1, Converter={StaticResource BoolToEarthOrGrey}}"
+                                    TextColor="White" CornerRadius="14" HeightRequest="40"
+                                    FontAttributes="Bold" FontSize="11"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8"
+                              IsVisible="{Binding CanPlanAct}">
+                            <Button Grid.Column="0" Text="Save zone"
+                                    Command="{Binding SavePlanZoneCommand}"
+                                    BackgroundColor="{StaticResource SoftPanelBg}"
+                                    TextColor="{StaticResource TextMain}"
+                                    CornerRadius="16" HeightRequest="44"
+                                    FontSize="13" FontAttributes="Bold" Padding="12,0"/>
+                            <Button Grid.Column="1" Text="Mow now"
+                                    Command="{Binding MowPlanNowCommand}"
+                                    BackgroundColor="{StaticResource EarthPrimaryDark}"
+                                    TextColor="White"
+                                    CornerRadius="16" HeightRequest="44"
+                                    FontSize="13" FontAttributes="Bold" Padding="18,0"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
 <Border Stroke="Transparent" StrokeShape="RoundRectangle 24"
-                        Padding="16" BackgroundColor="{StaticResource CardBg}">
+                        Padding="16" BackgroundColor="{StaticResource CardBg}"
+                        IsVisible="{Binding IsDriveMode}">
                     <Border.Shadow>
                         <Shadow Brush="#18000000" Offset="0,5" Radius="16"/>
                     </Border.Shadow>
@@ -118,8 +233,6 @@
                                     WidthRequest="38" HeightRequest="38"
                                     StrokeShape="RoundRectangle 14" Stroke="Transparent"
                                     BackgroundColor="#EEF4EE">
-                                <Label Text="🗺" FontSize="18"
-                                       HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                 <Label Text="BOUNDARY" FontSize="10" FontAttributes="Bold"
@@ -132,7 +245,7 @@
                                     IsVisible="{Binding IsRecordingBoundary}"
                                     BackgroundColor="#FDECEA"
                                     VerticalOptions="Center">
-                                <Label Text="● REC" FontSize="10" FontAttributes="Bold"
+                                <Label Text="REC" FontSize="10" FontAttributes="Bold"
                                        TextColor="#E53935"/>
                             </Border>
                         </Grid>
@@ -143,7 +256,7 @@
                                IsVisible="{Binding HasDatum,
                                    Converter={StaticResource InvertBool}}"/>
 
-<Button Text="● Record"
+<Button Text="Record"
                                 Command="{Binding StartBoundaryRecordingCommand}"
                                 IsEnabled="{Binding CanStartRecording}"
                                 IsVisible="{Binding IsNotRecording}"
@@ -171,8 +284,6 @@
                                         <TapGestureRecognizer Command="{Binding CapturePointCommand}"/>
                                     </Border.GestureRecognizers>
                                     <Grid RowDefinitions="*,Auto,Auto" Padding="0,8">
-                                        <Label Grid.Row="0" Text="📌" FontSize="22"
-                                               HorizontalOptions="Center" VerticalOptions="Center"/>
                                         <Label Grid.Row="1" Text="Mark"
                                                FontSize="12" FontAttributes="Bold"
                                                TextColor="White"
@@ -197,7 +308,7 @@
                                         <TapGestureRecognizer Command="{Binding CaptureOutlineCommand}"/>
                                     </Border.GestureRecognizers>
                                     <Grid RowDefinitions="*,Auto,Auto" Padding="0,8">
-                                        <Label Grid.Row="0" Text="＋" FontSize="24"
+                                        <Label Grid.Row="0" Text="+" FontSize="24"
                                                TextColor="White"
                                                HorizontalOptions="Center" VerticalOptions="Center"/>
                                         <Label Grid.Row="1" Text="New outline"
@@ -214,88 +325,7 @@
                             </Grid>
                         </Border>
 
-                        <Border
-    Stroke="Transparent"
-    StrokeShape="RoundRectangle 16"
-    BackgroundColor="#F0F2EC"
-    Padding="10">
-
-                            <VerticalStackLayout Spacing="8">
-
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <HorizontalStackLayout Spacing="6">
-                                        <Label Text="📡" FontSize="12" VerticalOptions="Center"/>
-                                        <Label Text="EVENT LOG"
-                       FontSize="10"
-                       FontAttributes="Bold"
-                       CharacterSpacing="1.5"
-                       TextColor="{StaticResource TextMuted}"
-                       VerticalOptions="Center"/>
-                                    </HorizontalStackLayout>
-
-                                    <Label Grid.Column="1"
-                   Text="{Binding EventLog.Entries.Count, StringFormat='{0} events'}"
-                   FontSize="10"
-                   TextColor="{StaticResource TextMuted}"
-                   VerticalOptions="Center"/>
-                                </Grid>
-
-                                <CollectionView
-            ItemsSource="{Binding EventLog.Entries}"
-            HeightRequest="150"
-            SelectionMode="None">
-
-                                    <CollectionView.EmptyView>
-                                        <Label Text="No events yet"
-                       FontSize="11"
-                       TextColor="{StaticResource TextMuted}"
-                       HorizontalOptions="Center"
-                       Margin="0,12"/>
-                                    </CollectionView.EmptyView>
-
-                                    <CollectionView.ItemTemplate>
-                                        <DataTemplate x:DataType="logging:EventLogEntry">
-                                            <Grid
-                        Padding="0,3"
-                        ColumnDefinitions="88,24,54,*"
-                        ColumnSpacing="6">
-
-                                                <Label Grid.Column="0"
-                               Text="{Binding TimeText}"
-                               FontSize="10"
-                               TextColor="{StaticResource TextMuted}"
-                               VerticalOptions="Start"/>
-
-                                                <Label Grid.Column="1"
-                               Text="{Binding LevelTag}"
-                               FontSize="12"
-                               FontAttributes="Bold"
-                               HorizontalTextAlignment="Center"
-                               TextColor="{Binding LevelColor}"
-                               VerticalOptions="Start"/>
-
-                                                <Label Grid.Column="2"
-                               Text="{Binding Source}"
-                               FontSize="10"
-                               FontAttributes="Bold"
-                               TextColor="{Binding LevelColor}"
-                               LineBreakMode="TailTruncation"
-                               VerticalOptions="Start"/>
-
-                                                <Label Grid.Column="3"
-                               Text="{Binding Message}"
-                               FontSize="10"
-                               TextColor="{StaticResource TextMain}"
-                               LineBreakMode="WordWrap"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
-
-                            </VerticalStackLayout>
-                        </Border>
-
-                        <Button Text="✓  Save boundary"
+                        <Button Text="Save boundary"
                                 Command="{Binding SaveBoundaryCommand}"
                                 IsVisible="{Binding IsRecordingBoundary}"
                                 IsEnabled="{Binding CanSaveBoundary}"
@@ -320,7 +350,7 @@
                                 Margin="10" Padding="8,4"
                                 Stroke="Transparent" StrokeShape="RoundRectangle 10"
                                 BackgroundColor="#DDFFFFFF">
-                            <Label Text="Local map · NEU"
+                            <Label Text="Local map - NEU"
                                    FontSize="10" FontAttributes="Bold"
                                    TextColor="{StaticResource TextMain}"/>
                         </Border>
@@ -336,15 +366,33 @@
                 </Border>
 
             </VerticalStackLayout>
-        </ScrollView>
+            </ScrollView>
+
+            <Grid Grid.Column="1" VerticalOptions="Center" WidthRequest="280"
+                  IsVisible="{OnIdiom Default=False, Desktop=True}">
+                <Ellipse Stroke="{StaticResource EarthPrimary}" StrokeThickness="1"
+                         Opacity="0.15" WidthRequest="240" HeightRequest="240"
+                         HorizontalOptions="Center" VerticalOptions="Center"
+                         InputTransparent="True"/>
+                <Ellipse Stroke="{StaticResource EarthSoft}" StrokeThickness="1"
+                         Opacity="0.28" WidthRequest="168" HeightRequest="168"
+                         HorizontalOptions="Center" VerticalOptions="Center"
+                         InputTransparent="True"/>
+                <controls:JoystickView
+                    x:Name="JoystickControlDesktop"
+                    HeightRequest="260" WidthRequest="260"
+                    JoystickMoved="OnJoystickMoved"
+                    JoystickReleased="OnJoystickReleased"
+                    ThumbColor="{StaticResource EarthPrimary}"
+                    BackgroundCircleColor="#EDEFE8"/>
+            </Grid>
+        </Grid>
 
 <Border Grid.Row="2"
                 IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBool}}"
                 Stroke="Transparent" StrokeShape="Rectangle"
                 BackgroundColor="#FDECEA" Padding="18,8">
             <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
-                <Label Text="⚠" TextColor="{StaticResource EarthDanger}"
-                       FontSize="14" VerticalOptions="Center"/>
                 <Label Text="{Binding ErrorMessage}"
                        TextColor="{StaticResource EarthDanger}"
                        FontSize="12" VerticalOptions="Center" LineBreakMode="WordWrap"/>
@@ -352,6 +400,7 @@
         </Border>
 
 <Border Grid.Row="3"
+                IsVisible="{OnIdiom Default=True, Desktop=False}"
                 Margin="0"
                 Padding="18,14,18,30"
                 BackgroundColor="{StaticResource CardBg}"
@@ -376,17 +425,6 @@
                              Opacity="0.20" WidthRequest="94" HeightRequest="94"
                              HorizontalOptions="Center" VerticalOptions="Center"
                              InputTransparent="True"/>
-                    <Border HorizontalOptions="Center" VerticalOptions="Start"
-                            Margin="0,10" Padding="14,5"
-                            StrokeShape="RoundRectangle 12" Stroke="Transparent"
-                            IsVisible="{Binding IsManualMode}"
-                            InputTransparent="True"
-                            BackgroundColor="{Binding IsMotorMoving, Converter={StaticResource BoolToEarthOrGrey}}">
-                        <Label Text="{Binding ManualStateText}"
-                               FontSize="11" FontAttributes="Bold"
-                               TextColor="White"/>
-                    </Border>
-
                     <controls:JoystickView
                         x:Name="JoystickControl"
                         JoystickMoved="OnJoystickMoved"

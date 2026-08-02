@@ -5,8 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
 <OnPlatform x:Key="AppFont" x:TypeArguments="x:String">
-        <On Platform="WinUI">OpenSansRegular</On>
-        <On Platform="Android,iOS,MacCatalyst">Pixie</On>
+        <On Platform="Android,iOS,MacCatalyst,WinUI">Pixie</On>
     </OnPlatform>
 
 <Style TargetType="Page" ApplyToDerivedTypes="True">
@@ -287,6 +286,22 @@
                 <Shadow Brush="#20000000"
                         Offset="0,8"
                         Radius="24" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StatTileBorder" TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="Padding" Value="14,13" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#12000000"
+                        Offset="0,3"
+                        Radius="12" />
             </Setter.Value>
         </Setter>
     </Style>

@@ -33,7 +33,9 @@
         </Grid>
 
 <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="18,4,18,28" Spacing="14">
+            <VerticalStackLayout Padding="18,4,18,28" Spacing="14"
+                                 HorizontalOptions="{OnIdiom Default=Fill, Desktop=Center}"
+                                 WidthRequest="{OnIdiom Default=-1, Desktop=720}">
 
 <Border Stroke="Transparent" StrokeShape="RoundRectangle 24"
                         Padding="16" BackgroundColor="{StaticResource CardBg}">
@@ -97,7 +99,7 @@
                             <Picker ItemsSource="{Binding SavedZones}"
                                     ItemDisplayBinding="{Binding Name}"
                                     SelectedItem="{Binding SelectedZone}"
-                                    Title="No zone — use onboard boundary"
+                                    Title="No zone - use onboard boundary"
                                     FontSize="14"
                                     TextColor="{StaticResource TextMain}"
                                     TitleColor="{StaticResource TextMuted}"/>
@@ -110,11 +112,6 @@
                                         FontSize="20"
                                         TextColor="{StaticResource TextMain}"/>
                         </Border>
-
-<Label Text="{Binding DurationLabel, StringFormat='DURATION: {0}'}"
-                               Style="{StaticResource SectionLabel}"/>
-                        <Slider Minimum="15" Maximum="240"
-                                Value="{Binding DurationMinutes}"/>
 
 <Border IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBool}}"
                                 Style="{StaticResource ErrorBanner}">
@@ -201,8 +198,6 @@
                                         <Label Text="{Binding StartTime, StringFormat='Start: {0:hh\\:mm}'}"
                                                FontSize="15" FontAttributes="Bold"
                                                TextColor="{StaticResource TextMain}"/>
-                                        <Label Text="{Binding DurationMinutes, StringFormat='{0} min'}"
-                                               FontSize="12" TextColor="{StaticResource TextMuted}"/>
                                         <HorizontalStackLayout Spacing="4">
                                             <Label Text="🗺" FontSize="11"/>
                                             <Label Text="{Binding ZoneLabel}"

@@ -39,6 +39,7 @@ public class JoystickView : SKCanvasView
     private SKPoint _thumbOffset;
     private SKPoint _center;
     private float   _maxRadius;
+    private bool    _dragging;
 
     public JoystickView()
     {
@@ -93,29 +94,50 @@ using var highlightPaint = new SKPaint { Color = SKColors.White.WithAlpha(80), I
     protected override void OnTouch(SKTouchEventArgs e)
     {
         e.Handled = true;
-        var pos = e.Location;
+
+        switch (e.ActionType)
+        {
+            case SKTouchAction.Pressed:
+                _dragging = true;
+                MoveThumb(e.Location);
+                break;
+
+            case SKTouchAction.Moved:
+                if (_dragging) MoveThumb(e.Location);
+                break;
+
+            case SKTouchAction.Released:
+            case SKTouchAction.Cancelled:
+            case SKTouchAction.Exited:
+                if (_dragging) Recenter();
+                break;
+        }
+    }
+
+    private void MoveThumb(SKPoint pos)
+    {
         float dx = pos.X - _center.X;
         float dy = pos.Y - _center.Y;
         float dist = MathF.Sqrt(dx * dx + dy * dy);
 
-        if (e.ActionType is SKTouchAction.Released or SKTouchAction.Cancelled)
+        if (dist > _maxRadius)
         {
-            _thumbOffset = SKPoint.Empty;
-            JoystickReleased?.Invoke(this, EventArgs.Empty);
-        }
-        else
-        {
-            if (dist > _maxRadius)
-            {
-                dx = dx / dist * _maxRadius;
-                dy = dy / dist * _maxRadius;
-            }
-            _thumbOffset = new SKPoint(dx, dy);
-            float nx =  dx / _maxRadius;
-            float ny = -dy / _maxRadius; 
-            JoystickMoved?.Invoke(this, new JoystickEventArgs(nx, ny));
+            dx = dx / dist * _maxRadius;
+            dy = dy / dist * _maxRadius;
         }
 
+        _thumbOffset = new SKPoint(dx, dy);
+        float nx =  dx / _maxRadius;
+        float ny = -dy / _maxRadius;
+        JoystickMoved?.Invoke(this, new JoystickEventArgs(nx, ny));
+        InvalidateSurface();
+    }
+
+    private void Recenter()
+    {
+        _dragging    = false;
+        _thumbOffset = SKPoint.Empty;
+        JoystickReleased?.Invoke(this, EventArgs.Empty);
         InvalidateSurface();
     }
 }

@@ -100,7 +100,7 @@ public class BoolToScanLabelConverter : IValueConverter
 public class DrawModeLabelConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is true ? "✏ Stop Drawing" : "✏ Draw Boundary";
+        => value is true ? "Stop Drawing" : "Draw Boundary";
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
@@ -172,7 +172,7 @@ public class BoolToEarthOrGreyConverter : IValueConverter
 public class PolygonModeLabelConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is true ? "🗺 Map Zone" : "🕹 Joystick";
+        => value is true ? "Map Zone" : "Joystick";
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
@@ -181,7 +181,7 @@ public class PolygonModeLabelConverter : IValueConverter
 public class ZonesPanelLabelConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is true ? "✕ Zones" : "📋 Zones";
+        => value is true ? "Hide Zones" : "Zones";
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();

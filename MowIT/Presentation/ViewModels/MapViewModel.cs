@@ -1,8 +1,11 @@
 using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MowIT.Application.Services;
 using MowIT.Application.UseCases;
 using MowIT.Domain.Entities;
+using MowIT.Domain.Enums;
 using MowIT.Domain.Interfaces;
 using MowIT.Presentation.ViewModels.Base;
 
@@ -12,14 +15,17 @@ public partial class MapViewModel : BaseViewModel
 {
     private readonly IRobotSensors       _sensors;
     private readonly IRobotBoundary      _boundary;
+    private readonly IRobotControl       _control;
     private readonly IBoundaryRepository _repo;
     private readonly SendBoundaryUseCase _sendBoundary;
+    private readonly MowingRoutePlanner  _planner;
     private IDisposable? _sensorSub;
     private int _currentZoneId;
 
     public ObservableCollection<GpsPoint>     BoundaryPoints { get; } = new();
     public ObservableCollection<GpsPoint>     RobotTrail     { get; } = new();
     public ObservableCollection<BoundaryZone> SavedZones     { get; } = new();
+    public List<GpsPoint>                     RoutePoints    { get; } = new();
 
     [ObservableProperty] private GpsPoint  _robotPosition;
     [ObservableProperty] private float     _robotHeadingDeg;
@@ -29,22 +35,44 @@ public partial class MapViewModel : BaseViewModel
     [ObservableProperty] private string    _zoneName = "My Garden";
     [ObservableProperty] private bool      _showZonesPanel;
 
-    public bool CanSendBoundary => BoundaryPoints.Count >= 3 && !IsSendingBoundary;
-    public bool CanSaveLocally  => BoundaryPoints.Count >= 3 && !IsBusy;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedStrategyName))]
+    [NotifyPropertyChangedFor(nameof(IsStrategy0))]
+    [NotifyPropertyChangedFor(nameof(IsStrategy1))]
+    private int _strategyIndex;
+
+    public bool IsStrategy0 => StrategyIndex == 0;
+    public bool IsStrategy1 => StrategyIndex == 1;
+
+    [ObservableProperty] private string _routeInfo = "No route - tap Calc Route";
+
+    [ObservableProperty] private int _routeVersion;
+
+    public string SelectedStrategyName => _planner.StrategyName(StrategyIndex);
+
+    public bool CanSendBoundary  => BoundaryPoints.Count >= 3 && !IsSendingBoundary;
+    public bool CanSaveLocally   => BoundaryPoints.Count >= 3 && !IsBusy;
+    public bool CanCalculateRoute => BoundaryPoints.Count >= 3;
+    public bool CanSendRoute      => RoutePoints.Count > 0 && !IsSendingBoundary;
 
     public MapViewModel(
         IRobotSensors sensors,
         IRobotBoundary boundary,
+        IRobotControl control,
         IBoundaryRepository repo,
-        SendBoundaryUseCase sendBoundary)
+        SendBoundaryUseCase sendBoundary,
+        MowingRoutePlanner planner)
     {
         _sensors      = sensors;
         _boundary     = boundary;
+        _control      = control;
         _repo         = repo;
         _sendBoundary = sendBoundary;
+        _planner      = planner;
         Title = "Map & Boundary";
 
         _sensorSub = _sensors.SensorStream
+            .Sample(TimeSpan.FromSeconds(1))
             .Subscribe(s => MainThread.BeginInvokeOnMainThread(() =>
             {
                 RobotPosition   = s.Gps;
@@ -162,7 +190,66 @@ public partial class MapViewModel : BaseViewModel
         OnPropertyChanged(nameof(CanSendBoundary));
     }
 
-    public override void OnDisappearing() => _sensorSub?.Dispose();
+    [RelayCommand]
+    private void SelectStrategy(string indexText)
+    {
+        if (!int.TryParse(indexText, out int idx)) return;
+        if (_planner.Strategies.Count == 0) return;
+
+        StrategyIndex = idx % _planner.Strategies.Count;
+        _planner.SelectedIndex = StrategyIndex;
+
+        if (RoutePoints.Count > 0) CalculateRouteCommand.Execute(null);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCalculateRoute))]
+    private async Task CalculateRouteAsync()
+    {
+        var points = BoundaryPoints.ToList();
+        if (points.Count < 3) return;
+
+        int index = StrategyIndex;
+        var zone  = new BoundaryZone { Name = ZoneName, Points = points };
+
+        var route = await Task.Run(() => _planner.Plan(zone, index));
+
+        double meters = 0;
+        for (int i = 1; i < route.Count; i++) meters += route[i - 1].DistanceTo(route[i]);
+
+        RoutePoints.Clear();
+        RoutePoints.AddRange(route);
+        RouteVersion++;
+
+        RouteInfo = route.Count == 0
+            ? "No route - draw a larger area"
+            : $"{route.Count} waypoints, {meters:F0} m, {_planner.StrategyName(index)}";
+
+        OnPropertyChanged(nameof(CanSendRoute));
+        SendRouteToRobotCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSendRoute))]
+    private async Task SendRouteToRobotAsync()
+    {
+        await RunSafeAsync(async () =>
+        {
+            IsSendingBoundary = true;
+            SendProgress      = 0;
+            OnPropertyChanged(nameof(CanSendRoute));
+            SendRouteToRobotCommand.NotifyCanExecuteChanged();
+
+            var progress = new Progress<int>(p => SendProgress = p);
+
+            await _boundary.SendRouteAsync(RoutePoints.ToList(), progress);
+            await _control.SendActionAsync(RobotAction.StartMowing);
+        }, "Send route failed");
+
+        IsSendingBoundary = false;
+        OnPropertyChanged(nameof(CanSendRoute));
+        SendRouteToRobotCommand.NotifyCanExecuteChanged();
+    }
+
+    public override void OnDisappearing() { }
 
 private async Task RefreshZonesAsync()
     {
@@ -176,7 +263,18 @@ private async Task RefreshZonesAsync()
 
     private void NotifyBoundaryChanged()
     {
+        if (RoutePoints.Count > 0)
+        {
+            RoutePoints.Clear();
+            RouteVersion++;
+            RouteInfo = "No route - tap Calc Route";
+        }
+
         OnPropertyChanged(nameof(CanSendBoundary));
         OnPropertyChanged(nameof(CanSaveLocally));
+        OnPropertyChanged(nameof(CanCalculateRoute));
+        OnPropertyChanged(nameof(CanSendRoute));
+        CalculateRouteCommand.NotifyCanExecuteChanged();
+        SendRouteToRobotCommand.NotifyCanExecuteChanged();
     }
 }
