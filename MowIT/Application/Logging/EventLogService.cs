@@ -23,12 +23,12 @@ public sealed record EventLogEntry(
 
     public string LevelTag => Level switch
     {
-        EventLogLevel.Tx    => "→",
-        EventLogLevel.Rx    => "←",
-        EventLogLevel.Info  => "·",
-        EventLogLevel.State => "≡",
+        EventLogLevel.Tx    => "TX",
+        EventLogLevel.Rx    => "RX",
+        EventLogLevel.Info  => "i",
+        EventLogLevel.State => "=",
         EventLogLevel.Warn  => "!",
-        EventLogLevel.Error => "✗",
+        EventLogLevel.Error => "x",
         _                   => "?"
     };
 
@@ -46,13 +46,41 @@ public sealed record EventLogEntry(
 
 public sealed class EventLogService
 {
-    private const int MaxEntries = 400;
+    private const int MaxEntries = 2000;
     private readonly ILogger<EventLogService> _logger;
+    private readonly object       _fileLock = new();
+    private StreamWriter?         _file;
 
     public ObservableCollection<EventLogEntry> Entries { get; } = new();
     public event EventHandler<EventLogEntry>? EntryAdded;
 
-    public EventLogService(ILogger<EventLogService> logger) => _logger = logger;
+    public string? SessionFilePath { get; private set; }
+
+    public EventLogService(ILogger<EventLogService> logger)
+    {
+        _logger = logger;
+        OpenSessionFile();
+    }
+
+    private void OpenSessionFile()
+    {
+        try
+        {
+            var dir = Path.Combine(FileSystem.AppDataDirectory, "logs");
+            Directory.CreateDirectory(dir);
+
+            SessionFilePath = Path.Combine(dir, $"session_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+            _file = new StreamWriter(SessionFilePath, append: true) { AutoFlush = true };
+            _file.WriteLine($"# MowIT session started {DateTime.Now:O}");
+            _file.WriteLine("# time\tlevel\tsource\tmessage");
+        }
+        catch (Exception ex)
+        {
+            _file = null;
+            SessionFilePath = null;
+            _logger.LogWarning(ex, "Could not open session log file");
+        }
+    }
 
     public void Tx   (string source, string cmd)  => Add(EventLogLevel.Tx,    source, cmd);
     public void Rx   (string source, string resp) => Add(EventLogLevel.Rx,    source, resp);
@@ -65,7 +93,8 @@ public sealed class EventLogService
     {
         var entry = new EventLogEntry(DateTime.Now, level, source, message);
 
-      
+        WriteToFile(entry);
+
         var line = $"[{source}] {entry.LevelTag} {message}";
         switch (level)
         {
@@ -76,6 +105,24 @@ public sealed class EventLogService
 
         if (MainThread.IsMainThread) AppendOnUi(entry);
         else MainThread.BeginInvokeOnMainThread(() => AppendOnUi(entry));
+    }
+
+    private void WriteToFile(EventLogEntry entry)
+    {
+        if (_file is null) return;
+
+        lock (_fileLock)
+        {
+            try
+            {
+                _file.WriteLine($"{entry.Timestamp:HH:mm:ss.fff}\t{entry.LevelTag}\t{entry.Source}\t{entry.Message}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Session log write failed");
+                _file = null;
+            }
+        }
     }
 
     private void AppendOnUi(EventLogEntry entry)
