@@ -24,7 +24,9 @@ public sealed class MowingSchedulerService : IDisposable
         _sendZone   = sendZone;
         _logger     = logger;
 
-}
+        _timer = new Timer(_ => _ = TickAsync(), null,
+            TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20));
+    }
 
     private async Task TickAsync()
     {
@@ -49,7 +51,7 @@ if (schedule.LastExecuted.Date == now.Date
                 if (!_connection.IsConnected)
                 {
                     _logger.LogWarning(
-                        "Scheduled mow skipped — robot not connected (schedule {Id} \"{Name}\")",
+                        "Scheduled mow skipped - robot not connected (schedule {Id} \"{Name}\")",
                         schedule.Id, schedule.ZoneName);
                     continue;
                 }
