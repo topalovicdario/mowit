@@ -8,6 +8,7 @@ public record RobotErrorMessage(string Code);
 public record CaptureEndMessage(bool Success, string? FailReason = null);
 public record BaseCapturedMessage();
 public record BoundaryPointCapturedMessage(int XCm, int YCm);
+public record BoundaryGpsPointCapturedMessage(Domain.Entities.GpsPoint Point);
 public record OutlineCapturedMessage();
 public record ExitCapturedMessage(int XCm, int YCm);
 

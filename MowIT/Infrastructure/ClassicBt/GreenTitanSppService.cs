@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Reactive.Subjects;
 using System.Text;
@@ -24,9 +25,12 @@ namespace MowIT.Infrastructure.ClassicBt;
 public sealed class GreenTitanSppService
     : IRobotScanner, IRobotConnection, IRobotSensors, IRobotControl, IRobotBoundary, IDisposable
 {
-    private const string RobotDeviceName = "GreenTitan";
-    private const string SppUuid         = "00001101-0000-1000-8000-00805F9B34FB";
-    private const int    CmdDelayMs      = 150;
+    private const string RobotDeviceName     = "GreenTitan";
+    private const string SppUuid             = "00001101-0000-1000-8000-00805F9B34FB";
+    private const int    CmdDelayMs          = 150;
+    private const int    ManualAckTimeoutMs  = 500;
+    private const float  RtkFixedMaxMm       = 50f;
+    private const float  RtkFloatMaxMm       = 500f;
 
     private readonly ILogger<GreenTitanSppService> _logger;
     private readonly EventLogService _evt;
@@ -51,6 +55,19 @@ public sealed class GreenTitanSppService
     private StreamWriter? _writer;
     private Stream?       _rawStream;
     private readonly object _writeLock = new();
+
+    private readonly Stopwatch _clock = Stopwatch.StartNew();
+    private readonly Dictionary<string, long> _pendingTx = new();
+    private readonly object _statsLock = new();
+    private int    _manualRecoveryBusy;
+
+    public int    ControlCommandsSent { get; private set; }
+    public int    ControlRepliesSeen  { get; private set; }
+    public int    LatencySamples      { get; private set; }
+    public long   LatencyTotalMs      { get; private set; }
+    public long   LatencyMinMs        { get; private set; } = long.MaxValue;
+    public long   LatencyMaxMs        { get; private set; }
+    public bool   LogPositionsToEventLog { get; set; } = true;
 
 #if ANDROID
     private BluetoothSocket?     _socket;
@@ -167,7 +184,7 @@ public IObservable<RobotConnectionState> ConnectionState => _stateSubject;
     {
         CurrentState = RobotConnectionState.Connecting;
         _stateSubject.OnNext(RobotConnectionState.Connecting);
-        _evt.State(Source, $"Connecting to {mowerDevice.Name} ({mowerDevice.Id})…");
+        _evt.State(Source, $"Connecting to {mowerDevice.Name} ({mowerDevice.Id})...");
 
         try
         {
@@ -197,16 +214,16 @@ public IObservable<RobotConnectionState> ConnectionState => _stateSubject;
 
 #elif WINDOWS
             if (!_winDeviceIds.TryGetValue(mowerDevice.Id, out var winId))
-                throw new Exception($"'{mowerDevice.Name}' not found — run scan first");
+                throw new Exception($"'{mowerDevice.Name}' not found - run scan first");
 
             RfcommDeviceService? rfcommService = await ResolveRfcommServiceAsync(winId, ct);
 
             if (rfcommService is null)
-                throw new Exception("SPP service not available — ensure GreenTitan is powered on and paired");
+                throw new Exception("SPP service not available - ensure GreenTitan is powered on and paired");
 
             var access = await rfcommService.RequestAccessAsync().AsTask(ct);
             if (access != DeviceAccessStatus.Allowed)
-                throw new Exception($"Bluetooth access not granted: {access}. Allow Bluetooth for this app in Windows Settings → Privacy → Bluetooth.");
+                throw new Exception($"Bluetooth access not granted: {access}. Allow Bluetooth for this app in Windows Settings > Privacy > Bluetooth.");
 
             _winSocket = new StreamSocket();
             await _winSocket.ConnectAsync(
@@ -227,6 +244,17 @@ public IObservable<RobotConnectionState> ConnectionState => _stateSubject;
             _gpsTimer      = new Timer(_ => FireAndForget("GPS/GET/POS"),      null, 1_000,   500);
             _accuracyTimer = new Timer(_ => FireAndForget("GPS/GET/ACCURACY"), null, 2_000, 2_000);
 
+            lock (_statsLock)
+            {
+                _pendingTx.Clear();
+                ControlCommandsSent = 0;
+                ControlRepliesSeen  = 0;
+                LatencySamples      = 0;
+                LatencyTotalMs      = 0;
+                LatencyMinMs        = long.MaxValue;
+                LatencyMaxMs        = 0;
+            }
+
             _manualMode  = false;
             CurrentState = RobotConnectionState.Connected;
             _stateSubject.OnNext(RobotConnectionState.Connected);
@@ -246,6 +274,8 @@ public IObservable<RobotConnectionState> ConnectionState => _stateSubject;
 
     public async Task DisconnectAsync()
     {
+        LogLinkStats();
+
         _gpsTimer?.Dispose();      _gpsTimer      = null;
         _accuracyTimer?.Dispose(); _accuracyTimer = null;
         _readCts?.Cancel();
@@ -287,12 +317,59 @@ public async Task SendMotorCommandAsync(float linearVel, float angularVel)
         if (!_manualMode)
         {
             SendCommand("MOWER/MANUAL/ON");
-            await Task.Delay(CmdDelayMs);
-            if (!_manualMode) return;
+            await WaitForManualModeAsync(ManualAckTimeoutMs);
         }
 
-        SendCommand(string.Format(CultureInfo.InvariantCulture,
+        SendMoveCommand(linearVel, angularVel);
+    }
+
+    private void SendMoveCommand(float linearVel, float angularVel)
+        => SendCommand(string.Format(CultureInfo.InvariantCulture,
             "MOWER/MOVE/{0:F3},{1:F3}", linearVel, angularVel));
+
+    private async Task<bool> WaitForManualModeAsync(int timeoutMs)
+    {
+        long deadline = _clock.ElapsedMilliseconds + timeoutMs;
+
+        while (!_manualMode && _clock.ElapsedMilliseconds < deadline)
+            await Task.Delay(20);
+
+        return _manualMode;
+    }
+
+    private async Task RecoverManualModeAsync()
+    {
+        if (Interlocked.CompareExchange(ref _manualRecoveryBusy, 1, 0) != 0) return;
+
+        try
+        {
+            float lin = _lastLinVel, ang = _lastAngVel;
+            if (MathF.Abs(lin) < 0.001f && MathF.Abs(ang) < 0.001f) return;
+
+            _evt.Warn(Source, "MOVE rejected (NOT_MANUAL) - re-enabling manual mode and repeating the move");
+
+            SendCommand("MOWER/MANUAL/ON");
+            if (!await WaitForManualModeAsync(ManualAckTimeoutMs))
+            {
+                _evt.Error(Source, "manual mode was not confirmed - move not repeated");
+                return;
+            }
+
+            SendMoveCommand(lin, ang);
+        }
+        finally
+        {
+            Volatile.Write(ref _manualRecoveryBusy, 0);
+        }
+    }
+
+    private static GpsFixType InferFixType(float accuracyMm, GpsPoint pos)
+    {
+        if (accuracyMm <= 0) return GpsFixType.NoFix;
+        if (pos.Latitude == 0 && pos.Longitude == 0) return GpsFixType.NoFix;
+        if (accuracyMm <= RtkFixedMaxMm) return GpsFixType.RtkFixed;
+        if (accuracyMm <= RtkFloatMaxMm) return GpsFixType.RtkFloat;
+        return GpsFixType.Standard;
     }
 
     public async Task SendActionAsync(RobotAction action, byte param = 0)
@@ -305,7 +382,6 @@ public async Task SendMotorCommandAsync(float linearVel, float angularVel)
             RobotAction.Stop                 => "MOWER/MANUAL/OFF",
             RobotAction.BoundaryRecordStart  => "MOWER/CAPTURE/START",
             RobotAction.BoundaryCapturePoint => "MOWER/CAPTURE/POINT",
-          
             RobotAction.BoundaryRecordEnd    => "MOWER/CAPTURE/END",
             RobotAction.BoundaryClear        => "MOWER/CAPTURE/START",
             RobotAction.StartRoute           => "MOWER/START",
@@ -324,7 +400,7 @@ public async Task SendMotorCommandAsync(float linearVel, float angularVel)
 
         SendCommand(cmd);
         await Task.Delay(CmdDelayMs);
-        _logger.LogInformation("Action {Action} → {Cmd}", action, cmd);
+        _logger.LogInformation("Action {Action} -> {Cmd}", action, cmd);
     }
 
 public Task SendBoundaryAsync(BoundaryZone zone, IProgress<int>? progress = null)
@@ -351,21 +427,87 @@ throw new NotSupportedException(
 
 private void SendCommand(string cmd)
     {
-        
+        bool isPoll = cmd.StartsWith("GPS/GET/", StringComparison.Ordinal);
+
         try
         {
             lock (_writeLock)
             {
                 _writer?.Write(cmd + "<");
             }
-            
-            if (!cmd.StartsWith("GPS/GET/", StringComparison.Ordinal))
-                _evt.Tx(Source, cmd);
+
+            lock (_statsLock)
+            {
+                _pendingTx[CorrelationKey(cmd, true)] = _clock.ElapsedMilliseconds;
+                if (!isPoll) ControlCommandsSent++;
+            }
+
+            if (!isPoll) _evt.Tx(Source, cmd);
         }
         catch (Exception ex)
         {
             _evt.Error(Source, $"Failed to send '{cmd}': {ex.Message}");
             _logger.LogWarning(ex, "Failed to send: {Cmd}", cmd);
+        }
+    }
+
+    private static string CorrelationKey(string message, bool outgoing)
+    {
+        var p = message.Split('/');
+        if (p.Length < 2) return message;
+
+        string head = p[0].ToUpperInvariant();
+        string mid  = p[1].ToUpperInvariant();
+
+        if (outgoing && head == "GPS" && mid == "GET" && p.Length >= 3)
+            return $"GPS/{p[2].ToUpperInvariant()}";
+
+        if (head == "MOWER" && mid == "MANUAL")
+            return "MOWER/MANUAL";
+
+        if (mid == "CAPTURE" && p.Length >= 3)
+            return $"{head}/CAPTURE/{p[2].ToUpperInvariant()}";
+
+        return $"{head}/{mid}";
+    }
+
+    private long? MatchReply(string line)
+    {
+        string key = CorrelationKey(line, false);
+
+        lock (_statsLock)
+        {
+            if (!_pendingTx.Remove(key, out long sentAt)) return null;
+
+            long elapsed = _clock.ElapsedMilliseconds - sentAt;
+
+            if (!key.StartsWith("GPS/POS", StringComparison.Ordinal)
+             && !key.StartsWith("GPS/ACCURACY", StringComparison.Ordinal))
+            {
+                ControlRepliesSeen++;
+                LatencySamples++;
+                LatencyTotalMs += elapsed;
+                if (elapsed < LatencyMinMs) LatencyMinMs = elapsed;
+                if (elapsed > LatencyMaxMs) LatencyMaxMs = elapsed;
+            }
+
+            return elapsed;
+        }
+    }
+
+    private void LogLinkStats()
+    {
+        lock (_statsLock)
+        {
+            if (ControlCommandsSent == 0) return;
+
+            double pct = 100.0 * ControlRepliesSeen / ControlCommandsSent;
+            double avg = LatencySamples > 0 ? (double)LatencyTotalMs / LatencySamples : 0;
+            long   min = LatencyMinMs == long.MaxValue ? 0 : LatencyMinMs;
+
+            _evt.State(Source,
+                $"link stats: sent={ControlCommandsSent} acked={ControlRepliesSeen} ({pct:F1}%), " +
+                $"latency avg={avg:F0} ms min={min} ms max={LatencyMaxMs} ms (n={LatencySamples})");
         }
     }
 
@@ -460,10 +602,14 @@ foreach (var prefix in _msgPrefixes)
 
 private void ParseLine(string line)
     {
-        
-        bool noisy = line.StartsWith("GPS/POS/", StringComparison.OrdinalIgnoreCase)
-                   || line.StartsWith("GPS/ACCURACY/", StringComparison.OrdinalIgnoreCase);
-        if (!noisy) _evt.Rx(Source, line);
+        long? latencyMs = MatchReply(line);
+        string suffix   = latencyMs is { } ms ? $"  (+{ms} ms)" : string.Empty;
+
+        bool telemetry = line.StartsWith("GPS/POS/", StringComparison.OrdinalIgnoreCase)
+                      || line.StartsWith("GPS/ACCURACY/", StringComparison.OrdinalIgnoreCase);
+
+        if (!telemetry)                    _evt.Rx(Source, line + suffix);
+        else if (LogPositionsToEventLog)   _evt.Rx(Source, line + suffix);
 
         var parts = line.Split('/');
         if (parts.Length < 2) return;
@@ -485,11 +631,13 @@ private void ParseLine(string line)
         switch (parts[1].ToUpperInvariant())
         {
             case "ACCURACY":
-                if (float.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float acc))
+                if (float.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float accMeters))
                 {
+                    float accMm = accMeters * 1000f;
                     _latestSensor = _latestSensor with
                     {
-                        GpsAccuracyMm = acc * 10f,  
+                        GpsAccuracyMm = accMm,
+                        GpsFixType    = InferFixType(accMm, _latestSensor.Gps),
                         Timestamp     = DateTime.UtcNow
                     };
                     _sensorSubject.OnNext(_latestSensor);
@@ -513,17 +661,28 @@ private void ParseLine(string line)
 
                 if (parts.Length >= 4 && parts[2].Equals("BASE", StringComparison.OrdinalIgnoreCase))
                 {
-                    bool   ok     = parts[3].Equals("DONE", StringComparison.OrdinalIgnoreCase);
-                    string reason = (!ok && parts.Length >= 5) ? parts[4] : string.Empty;
+                    string verdict = parts[3].ToUpperInvariant();
+                    string reason  = parts.Length >= 5 ? parts[4] : string.Empty;
 
-               
-                    bool alreadyHasDatum = !ok && reason.Equals("BUSY", StringComparison.OrdinalIgnoreCase);
+                    switch (verdict)
+                    {
+                        case "STARTED":
+                            _evt.Info(Source, "datum capture started - waiting for final verdict");
+                            break;
 
-                    if (ok || alreadyHasDatum)
-                        WeakReferenceMessenger.Default.Send(new BaseCapturedMessage());
-                    else
-                        WeakReferenceMessenger.Default.Send(new RobotErrorMessage($"BASE_CAPTURE_FAIL/{reason}"));
-                    _logger.LogInformation("GPS/CAPTURE/BASE {Result} {Reason}", ok ? "DONE" : "FAIL", reason);
+                        case "DONE":
+                            WeakReferenceMessenger.Default.Send(new BaseCapturedMessage());
+                            break;
+
+                        default:
+                            if (reason.Equals("BUSY", StringComparison.OrdinalIgnoreCase))
+                                _evt.Info(Source, "datum capture already running - waiting for final verdict");
+                            else
+                                WeakReferenceMessenger.Default.Send(new RobotErrorMessage($"BASE_CAPTURE_FAIL/{reason}"));
+                            break;
+                    }
+
+                    _logger.LogInformation("GPS/CAPTURE/BASE {Verdict} {Reason}", verdict, reason);
                 }
                 break;
         }
@@ -598,6 +757,7 @@ private void ParseLine(string line)
                                 Timestamp     = DateTime.UtcNow
                             };
                             _sensorSubject.OnNext(_latestSensor);
+                            _ = RecoverManualModeAsync();
                         }
                         break;
                 }
@@ -636,22 +796,21 @@ private void ParseLine(string line)
                 break;
 
             case "POINT":
-               
+
                 if (ok && parts.Length >= 5)
                 {
-                    var xy = parts[4].Split(',');
-                    if (xy.Length == 2
-                        && int.TryParse(xy[0].Trim(), out int xCm)
-                        && int.TryParse(xy[1].Trim(), out int yCm))
+                    var coords = parts[4].Split(',');
+                    if (coords.Length == 2
+                        && double.TryParse(coords[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double pLat)
+                        && double.TryParse(coords[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out double pLon))
                     {
-                        _latestSensor = _latestSensor with
-                        {
-                            PosX      = xCm / 100f,
-                            PosY      = yCm / 100f,
-                            Timestamp = DateTime.UtcNow
-                        };
-                        _sensorSubject.OnNext(_latestSensor);
-                        WeakReferenceMessenger.Default.Send(new BoundaryPointCapturedMessage(xCm, yCm));
+                        WeakReferenceMessenger.Default.Send(
+                            new BoundaryGpsPointCapturedMessage(new GpsPoint(pLat, pLon)));
+                    }
+                    else
+                    {
+                        _evt.Error(Source, $"unreadable capture point payload '{parts[4]}'");
+                        WeakReferenceMessenger.Default.Send(new RobotErrorMessage("CAPTURE_POINT_PARSE"));
                     }
                 }
                 else if (!ok)
@@ -663,7 +822,7 @@ private void ParseLine(string line)
 
             case "END":
              
-                string endReason = (!ok && parts.Length >= 5) ? parts[4] : null;
+                string? endReason = (!ok && parts.Length >= 5) ? parts[4] : null;
                 WeakReferenceMessenger.Default.Send(new CaptureEndMessage(ok, endReason));
                 if (!ok)
                     WeakReferenceMessenger.Default.Send(new RobotErrorMessage($"CAPTURE_END_FAIL/{endReason ?? string.Empty}"));
@@ -684,7 +843,7 @@ private void ParseLine(string line)
         _latestSensor = _latestSensor with
         {
             Gps        = pt,
-            GpsFixType = GpsFixType.Standard,
+            GpsFixType = InferFixType(_latestSensor.GpsAccuracyMm, pt),
             Timestamp  = DateTime.UtcNow
         };
         _sensorSubject.OnNext(_latestSensor);

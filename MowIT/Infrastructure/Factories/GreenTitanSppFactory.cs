@@ -24,7 +24,7 @@ public class GreenTitanSppFactory : IRobotServiceFactory
         services.AddSingleton<IRobotSensors> (sp => sp.GetRequiredService<GreenTitanSppService>());
         services.AddSingleton<IRobotBoundary>(sp => sp.GetRequiredService<GreenTitanSppService>());
 
-services.AddSingleton<RobotStateMachine>();
+        services.AddSingleton<RobotStateMachine>();
         services.AddSingleton<IRobotControl>(sp =>
         {
             var spp          = sp.GetRequiredService<GreenTitanSppService>();
