@@ -16,8 +16,19 @@
                      Margin="0,-100,-100,0"/>
         </Grid>
 
-        <Grid Grid.Row="0" Padding="22,52,22,14" ColumnDefinitions="*,Auto">
-            <VerticalStackLayout Spacing="2">
+        <Grid Grid.Row="0" Padding="14,52,22,14" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+            <Button Grid.Column="0"
+                    Text="&#x2190;"
+                    Command="{Binding DisconnectCommand}"
+                    SemanticProperties.Description="Disconnect and choose another mower"
+                    ToolTipProperties.Text="Disconnect and choose another mower"
+                    BackgroundColor="{StaticResource CardBg}"
+                    TextColor="{StaticResource TextMain}"
+                    FontSize="20" FontAttributes="Bold"
+                    WidthRequest="44" HeightRequest="44"
+                    CornerRadius="16" Padding="0"
+                    VerticalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                 <Label Text="MowIT"
                        FontSize="28" FontAttributes="Bold"
                        TextColor="{StaticResource TextMain}"/>

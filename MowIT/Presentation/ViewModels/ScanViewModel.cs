@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -67,30 +67,54 @@ public partial class ScanViewModel : BaseViewModel
         Title = "Find Your Mower";
         _selectedTransport = transport.CurrentKind;
 
-        _deviceSub = _scanner.DiscoveredDevices
-    .Subscribe(d => MainThread.BeginInvokeOnMainThread(() =>
+        Subscribe();
+    }
+
+    /// <summary>
+    /// Builds the live subscriptions. Shell caches this page, so OnDisappearing tears them
+    /// down and this rebuilds them every time the page is shown again - without that, coming
+    /// back here after a disconnect would leave the device list permanently dead.
+    /// </summary>
+    private void Subscribe()
     {
-        if (!DiscoveredDevices.Any(x => x.Id == d.Id))
-        {
-            DiscoveredDevices.Add(d);
-            ErrorMessage = string.Empty;
-            _evt.Info(Source, $"found device {d.Name}");
-        }
-    }));
+        _deviceSub?.Dispose();
+        _stateSub?.Dispose();
+
+        _deviceSub = _scanner.DiscoveredDevices
+            .Subscribe(d => MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (!DiscoveredDevices.Any(x => x.Id == d.Id))
+                {
+                    DiscoveredDevices.Add(d);
+                    ErrorMessage = string.Empty;
+                    _evt.Info(Source, $"found device {d.Name}");
+                }
+            }));
 
         _stateSub = _connection.ConnectionState
-     .Subscribe(s => MainThread.BeginInvokeOnMainThread(() =>
-     {
-         ConnectionState = s;
-         _evt.State(Source, $"connection to {s}");
-     }));
+            .Subscribe(s => MainThread.BeginInvokeOnMainThread(() =>
+            {
+                ConnectionState = s;
+                _evt.State(Source, $"connection to {s}");
+            }));
 
+        // Register throws on a duplicate, and Subscribe() runs again on every appearance.
+        WeakReferenceMessenger.Default.Unregister<RobotErrorMessage>(this);
         WeakReferenceMessenger.Default.Register<RobotErrorMessage>(this, (_, m) =>
         {
             if (m.Code.StartsWith("WIFI/", StringComparison.Ordinal))
                 MainThread.BeginInvokeOnMainThread(() =>
                     ErrorMessage = m.Code["WIFI/".Length..]);
         });
+    }
+
+    public override Task OnAppearingAsync()
+    {
+        Subscribe();
+
+        // The state stream is not replayed on re-subscribe, so seed the badge by hand.
+        ConnectionState = _connection.CurrentState;
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

@@ -376,4 +376,31 @@ public partial class DashboardViewModel : BaseViewModel
         _evt.Info(Source, "user pressed Stop");
         await RunSafeAsync(() => _control.SendActionAsync(RobotAction.Stop));
     }
+
+    [RelayCommand]
+    private async Task DisconnectAsync()
+    {
+        bool confirmed = await Shell.Current.DisplayAlert(
+            "Disconnect",
+            "Disconnect from the mower and go back to the device list?",
+            "Disconnect",
+            "Cancel");
+
+        if (!confirmed) return;
+
+        _evt.Info(Source, "user pressed Disconnect");
+
+        // Stop the blades before dropping the link - a mower that keeps cutting after the
+        // app walks away is exactly what the connection guard cannot protect against.
+        await RunSafeAsync(async () =>
+        {
+            await _control.SendActionAsync(RobotAction.Stop);
+
+            // Tell the Shell this drop is deliberate. It still performs the navigation back
+            // to //scan, but skips the "connection was lost" alert.
+            WeakReferenceMessenger.Default.Send(new UserDisconnectRequestedMessage());
+
+            await _connection.DisconnectAsync();
+        }, "Disconnect failed");
+    }
 }

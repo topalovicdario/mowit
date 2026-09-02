@@ -70,36 +70,31 @@
 
                     <Grid RowDefinitions="Auto,Auto" RowSpacing="16">
 
-<Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                            <Border Grid.Column="0"
-                                    WidthRequest="38" HeightRequest="38"
-                                    StrokeShape="RoundRectangle 14" Stroke="Transparent"
-                                    BackgroundColor="{StaticResource EarthPrimarySoft}">
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
-                                <Label Text="GPS" FontSize="10" FontAttributes="Bold"
-                                       TextColor="{StaticResource TextMuted}" CharacterSpacing="1.8"/>
-                                <Label Text="{Binding CurrentGpsText}"
-                                       FontSize="14" FontAttributes="Bold"
-                                       TextColor="{StaticResource TextMain}"/>
-                            </VerticalStackLayout>
-                            <Border Grid.Column="2" Padding="9,5"
-                                    StrokeShape="RoundRectangle 12" Stroke="Transparent"
-                                    BackgroundColor="{StaticResource EarthPrimarySoft}"
-                                    VerticalOptions="Center">
-                                <Label Text="{Binding GpsAccuracyText}"
-                                       FontSize="11" FontAttributes="Bold"
-                                       TextColor="{StaticResource EarthPrimaryDark}"/>
-                            </Border>
+<!-- The coordinate pair needs a row to itself. Squeezed into the middle column of a
+                             three-column row it had barely 180 units on a phone and wrapped into three
+                             broken lines; on its own row it gets the full card width. -->
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="3">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                <Label Grid.Column="0" Text="GPS"
+                                       FontSize="10" FontAttributes="Bold"
+                                       TextColor="{StaticResource TextMuted}" CharacterSpacing="1.8"
+                                       VerticalOptions="Center"/>
+                                <Border Grid.Column="1" Padding="9,5"
+                                        StrokeShape="RoundRectangle 12" Stroke="Transparent"
+                                        BackgroundColor="{StaticResource EarthPrimarySoft}"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding GpsAccuracyText}"
+                                           FontSize="11" FontAttributes="Bold"
+                                           TextColor="{StaticResource EarthPrimaryDark}"/>
+                                </Border>
+                            </Grid>
+                            <Label Grid.Row="1" Text="{Binding CurrentGpsText}"
+                                   FontSize="13" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextMain}"/>
                         </Grid>
 
-<Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                            <Border Grid.Column="0"
-                                    WidthRequest="38" HeightRequest="38"
-                                    StrokeShape="RoundRectangle 14" Stroke="Transparent"
-                                    BackgroundColor="#F0F4EE">
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+<Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
                                 <Label Text="DATUM" FontSize="10" FontAttributes="Bold"
                                        TextColor="{StaticResource TextMuted}" CharacterSpacing="1.8"/>
                                 <Label Text="{Binding SetupStatusText}"
@@ -107,7 +102,7 @@
                                        TextColor="{Binding HasDatum,
                                            Converter={StaticResource BoolToSuccessColor}}"/>
                             </VerticalStackLayout>
-                            <Button Grid.Column="2"
+                            <Button Grid.Column="1"
                                     Text="Set Base"
                                     Command="{Binding CaptureBaseCommand}"
                                     IsEnabled="{Binding HasGpsFix}"
@@ -146,29 +141,33 @@
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="12">
 
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                            <Border Grid.Column="0"
-                                    WidthRequest="38" HeightRequest="38"
-                                    StrokeShape="RoundRectangle 14" Stroke="Transparent"
-                                    BackgroundColor="#EEF4EE">
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
-                                <Label Text="CAPTURE BY DRIVING" FontSize="10" FontAttributes="Bold"
-                                       TextColor="{StaticResource TextMuted}" CharacterSpacing="1.8"/>
-                                <Label Text="{Binding PlanHint}"
-                                       FontSize="13" TextColor="{StaticResource TextMuted}"/>
-                            </VerticalStackLayout>
-                            <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
-                                <Button Text="Undo" Command="{Binding UndoPlanPointCommand}"
-                                        BackgroundColor="{StaticResource SoftPanelBg}"
-                                        TextColor="{StaticResource TextMain}"
-                                        CornerRadius="12" HeightRequest="36"
-                                        FontSize="12" Padding="14,0"/>
-                                <Button Text="Clear" Command="{Binding ClearPlanPointsCommand}"
-                                        BackgroundColor="Transparent"
-                                        TextColor="{StaticResource EarthDanger}"
-                                        FontSize="12" HeightRequest="36" Padding="14,0"/>
-                            </HorizontalStackLayout>
+                        <!-- Three real Grid columns, not nested HorizontalStackLayouts.
+                             A HorizontalStackLayout never compresses its children, so on a
+                             narrow Android screen the title kept its full desired width and
+                             pushed Undo/Clear off the card. Here the buttons size to content
+                             and are always fully visible on the right, and the title takes
+                             whatever is left over and truncates instead of overflowing. -->
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                            <Label Grid.Column="0"
+                                   Text="Capture by driving"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextMain}"
+                                   LineBreakMode="TailTruncation"
+                                   MaxLines="1"
+                                   VerticalOptions="Center"/>
+                            <Button Grid.Column="1" Text="Undo"
+                                    Command="{Binding UndoPlanPointCommand}"
+                                    BackgroundColor="{StaticResource SoftPanelBg}"
+                                    TextColor="{StaticResource TextMain}"
+                                    CornerRadius="12" HeightRequest="36"
+                                    FontSize="12" Padding="12,0"
+                                    MinimumWidthRequest="0"/>
+                            <Button Grid.Column="2" Text="Clear"
+                                    Command="{Binding ClearPlanPointsCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource EarthDanger}"
+                                    FontSize="12" HeightRequest="36" Padding="12,0"
+                                    MinimumWidthRequest="0"/>
                         </Grid>
 
                         <Label Text="Set GPS base first to capture points"
@@ -176,7 +175,7 @@
                                HorizontalOptions="Center"
                                IsVisible="{Binding HasDatum, Converter={StaticResource InvertBool}}"/>
 
-                        <Button Text="Capture point"
+                        <Button Text="{Binding CapturePointLabel}"
                                 Command="{Binding CapturePlanPointCommand}"
                                 IsEnabled="{Binding HasDatum}"
                                 Opacity="{Binding HasDatum, Converter={StaticResource BoolToOpacity}}"

@@ -22,8 +22,14 @@ public static partial class MauiProgram
 {
 
    
+    // Demo configuration.
+    // MultiTransportFactory registers BOTH robots and lets the Scan page switch between them:
+    //   "Bluetooth" -> SimulatedRobotService (in-process, works with no server running)
+    //   "WiFi"      -> WifiRobotService      (needs MowIT.ScheduleServer + MowIT.RobotSimulator)
+    // It also enables real cloud schedule sync (HttpScheduleSyncService).
+    // For real hardware swap this for GreenTitanSppFactory (Classic BT) or GreenTitanServiceFactory (BLE).
     private static readonly IRobotServiceFactory RobotFactory =
-             new GreenTitanSppFactory();
+             new MultiTransportFactory();
 
     public static MauiApp CreateMauiApp()
     {

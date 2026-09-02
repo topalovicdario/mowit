@@ -97,6 +97,11 @@ public partial class ControlViewModel : BaseViewModel
 
     private GpsPoint? _baseGps;
 
+    // Identity of the zone the Plan-mode polygon is stored under, so repeatedly saving or
+    // mowing the same captured area updates one row instead of piling up new ones.
+    private int     _planZoneId;
+    private string? _planZoneName;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ManualStateText))]
     private bool _isManualMode;
@@ -187,10 +192,13 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
     public int    PlanPointCount      => PlanPoints.Count;
     public bool   CanPickPlanStrategy => PlanPoints.Count >= 3;
     public bool   CanPlanAct          => HasPlanRoute;
-    public string PlanHint => PlanPoints.Count switch
+    // Shown on the full-width "Capture point" button rather than in the header row: the
+    // header has to fit two buttons on a 360 dp phone, the action button always has room.
+    public string CapturePointLabel => PlanPoints.Count switch
     {
-        0 => "Drive to a corner, then capture",
-        _ => $"{PlanPoints.Count} point{(PlanPoints.Count == 1 ? "" : "s")} - drive to the next corner"
+        0 => "Capture point",
+        1 => "Capture point  ·  1 pt",
+        _ => $"Capture point  ·  {PlanPoints.Count} pts"
     };
 
     public ControlViewModel(
@@ -231,7 +239,7 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
                 GpsAccuracyMm   = s.GpsAccuracyMm;
                 GpsFixType      = s.GpsFixType;
                 CurrentGpsText  = HasGpsFix
-                    ? $"{s.Gps.Latitude:F6}°   {s.Gps.Longitude:F6}°"
+                    ? $"{s.Gps.Latitude:F6}°  {s.Gps.Longitude:F6}°"
                     : "No GPS fix";
                 OnPropertyChanged(nameof(GpsAccuracyText));
                 OnPropertyChanged(nameof(HasGpsFix));
@@ -460,8 +468,13 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
 
 public void OnJoystickMoved(float normalizedX, float normalizedY)
     {
-        float lin =  normalizedY * 0.5f;
-        float ang = -normalizedX * 1.0f;
+        // normalizedX is +1 with the stick pushed right. _heading is a COMPASS BEARING, so
+        // increasing it turns clockwise = right (see StepGps: north += cos h, east += sin h).
+        // Pushing right must therefore give a POSITIVE angular velocity. The original minus
+        // sign assumed the maths convention (positive yaw counter-clockwise) and steered the
+        // mower inverted - the same frame mix-up that had the map arrow 90 degrees out.
+        float lin = normalizedY * 0.5f;
+        float ang = normalizedX * 1.0f;
         LinearVelocity  = lin;
         AngularVelocity = ang;
         _joystickSubject.OnNext((lin, ang));
@@ -513,7 +526,16 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
     private async Task SaveBoundaryAsync()
     {
         _evt.Info(Source, $"user pressed Save  (zones={PolygonCount} pts-pending={BoundaryPointCount})");
-        await RunSafeAsync(() => _control.SendActionAsync(RobotAction.BoundaryRecordEnd));
+
+        await RunSafeAsync(async () =>
+        {
+            // The firmware refuses CAPTURE/END unless an exit point was marked (END/FAIL/NO_EXIT).
+            // The exit is where the mower leaves the base to enter the lawn, so the position it is
+            // standing on when the user finishes walking the perimeter is the correct one to record.
+            // GreenTitan over SPP has no CAPTURE/EXIT command, so this is a no-op on that transport.
+            await _control.SendActionAsync(RobotAction.CaptureExit);
+            await _control.SendActionAsync(RobotAction.BoundaryRecordEnd);
+        });
     }
 
     [RelayCommand]
@@ -551,6 +573,8 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
     {
         PlanPoints.Clear();
         PlanPointsLocal.Clear();
+        _planZoneId   = 0;        // starting a fresh area - do not overwrite the saved one
+        _planZoneName = null;
         ResetPlanRoute();
         NotifyPlanChanged();
     }
@@ -586,6 +610,9 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
         await RunSafeAsync(async () =>
         {
             await _repo.SaveAsync(zone);
+            _planZoneId   = zone.Id;
+            _planZoneName = zone.Name;
+            await _geofence.ReloadAsync();   // same rule as the walked boundary: saving a zone arms the fence
             LogAndToast($"Zone \"{zone.Name}\" saved");
         }, "Save failed");
     }
@@ -600,6 +627,12 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
         {
             var route = _planner.Plan(zone, PlanStrategyIndex);
             if (route.Count == 0) { ErrorMessage = "Route is empty - add more area"; return; }
+
+            // Guard the area we are about to mow, not whichever zone was saved last.
+            await _repo.SaveAsync(zone);
+            _planZoneId   = zone.Id;
+            _planZoneName = zone.Name;
+            await _geofence.ReloadAsync();
 
             await _boundary.SendRouteAsync(route);
             await _control.SendActionAsync(RobotAction.StartMowing);
@@ -635,7 +668,10 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
 
         return new BoundaryZone
         {
-            Name   = string.IsNullOrWhiteSpace(name) ? $"Zone {DateTime.Now:HH:mm}" : name.Trim(),
+            Id     = _planZoneId,
+            Name   = !string.IsNullOrWhiteSpace(name)          ? name.Trim()
+                   : !string.IsNullOrWhiteSpace(_planZoneName) ? _planZoneName!
+                   : $"Zone {DateTime.Now:HH:mm}",
             Points = PlanPoints.ToList()
         };
     }
@@ -650,7 +686,7 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
     {
         PlanRevision++;
         OnPropertyChanged(nameof(PlanPointCount));
-        OnPropertyChanged(nameof(PlanHint));
+        OnPropertyChanged(nameof(CapturePointLabel));
         OnPropertyChanged(nameof(CanPickPlanStrategy));
         OnPropertyChanged(nameof(CanPlanAct));
         SavePlanZoneCommand.NotifyCanExecuteChanged();

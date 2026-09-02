@@ -51,11 +51,17 @@
                        TextColor="{StaticResource TextMain}"
                        HorizontalOptions="Center"
                        Margin="0,18,0,2"/>
-                <Label Text="Smart Garden · Autonomous Control"
+                <Label Text="Smart Garden"
                        FontSize="12" TextColor="{StaticResource TextMuted}"
                        HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       CharacterSpacing="0.4"/>
+                <Label Text="Autonomous Control"
+                       FontSize="12" TextColor="{StaticResource TextMuted}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
                        CharacterSpacing="0.4"
-                       Margin="0,0,0,44"/>
+                       Margin="0,1,0,44"/>
 
 <HorizontalStackLayout Spacing="8" Margin="4,0,0,8">
                     <BoxView Color="{StaticResource EarthPrimary}"
@@ -96,10 +102,6 @@
                            FontSize="13" HorizontalOptions="Center"/>
                 </Border>
 
-<Label Text="GreenTitan Autonomous Mower"
-                       FontSize="11" TextColor="{StaticResource TextMuted}"
-                       HorizontalOptions="Center"
-                       Margin="0,32,0,0"/>
 
             </VerticalStackLayout>
         </ScrollView>

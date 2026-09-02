@@ -14,3 +14,5 @@ public static readonly Guid MotorCommandUuid = Guid.Parse("00001240-0000-1000-80
     public static readonly Guid BoundaryChunkUuid = Guid.Parse("00001242-0000-1000-8000-00805f9b34fb");
     public static readonly Guid ScheduleDataUuid  = Guid.Parse("00001243-0000-1000-8000-00805f9b34fb");
 }
+
+

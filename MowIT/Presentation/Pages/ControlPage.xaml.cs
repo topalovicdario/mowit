@@ -286,9 +286,15 @@ public partial class ControlPage : ContentPage
         canvas.DrawCircle(s, 8, body);
         canvas.DrawCircle(s, 8, stroke);
 
+        // _heading is a COMPASS BEARING - radians clockwise from North. That is the convention
+        // the motion model uses (north += cos h, east += sin h in StepGps) and the one the
+        // dashboard's N/NE/E label assumes. Screen axes are +X right (east) and +Y DOWN, so
+        // the east component is sin(h) and the north component is -cos(h).
+        // Reading the bearing as a maths angle instead (cos -> x, sin -> y) drew the nose 90
+        // degrees off: a mower heading due east moved right but pointed its arrow straight up.
         float h  = _dispHeading;
-        float dx = (float)Math.Cos(h) * 16;
-        float dy = -(float)Math.Sin(h) * 16;
+        float dx =  (float)Math.Sin(h) * 16;
+        float dy = -(float)Math.Cos(h) * 16;
         using var arrow = new SKPaint { Color = MowerBody, StrokeWidth = 3, IsAntialias = true, IsStroke = true, StrokeCap = SKStrokeCap.Round };
         canvas.DrawLine(s.X, s.Y, s.X + dx, s.Y + dy, arrow);
     }

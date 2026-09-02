@@ -19,6 +19,7 @@ public partial class MapViewModel : BaseViewModel
     private readonly IBoundaryRepository _repo;
     private readonly SendBoundaryUseCase _sendBoundary;
     private readonly MowingRoutePlanner  _planner;
+    private readonly GeofenceMonitor     _geofence;
     private IDisposable? _sensorSub;
     private int _currentZoneId;
 
@@ -61,7 +62,8 @@ public partial class MapViewModel : BaseViewModel
         IRobotControl control,
         IBoundaryRepository repo,
         SendBoundaryUseCase sendBoundary,
-        MowingRoutePlanner planner)
+        MowingRoutePlanner planner,
+        GeofenceMonitor geofence)
     {
         _sensors      = sensors;
         _boundary     = boundary;
@@ -69,6 +71,7 @@ public partial class MapViewModel : BaseViewModel
         _repo         = repo;
         _sendBoundary = sendBoundary;
         _planner      = planner;
+        _geofence     = geofence;
         Title = "Map & Boundary";
 
         _sensorSub = _sensors.SensorStream
@@ -136,6 +139,10 @@ public partial class MapViewModel : BaseViewModel
             await _repo.DeleteAsync(zone.Id);
             await MainThread.InvokeOnMainThreadAsync(() => SavedZones.Remove(zone));
             if (_currentZoneId == zone.Id) _currentZoneId = 0;
+
+            // The fence may have been armed on the zone that was just deleted - make it
+            // re-pick from what is actually left (or go idle if nothing valid remains).
+            await _geofence.ReloadAsync();
         }, "Delete failed");
     }
 
@@ -155,6 +162,11 @@ public partial class MapViewModel : BaseViewModel
             await _repo.SaveAsync(zone);
             _currentZoneId = zone.Id;
             await RefreshZonesAsync();
+
+            // Re-arm the geofence on the zone that was just saved. Without this the fence
+            // keeps watching whatever it loaded when the robot connected, so a zone drawn
+            // on the map would not protect anything until the next reconnect.
+            await _geofence.ReloadAsync();
         }, "Save failed");
 
         NotifyBoundaryChanged();
@@ -177,6 +189,7 @@ public partial class MapViewModel : BaseViewModel
             await _repo.SaveAsync(zone);
             _currentZoneId = zone.Id;
             await RefreshZonesAsync();
+            await _geofence.ReloadAsync();
 
             var progress = new Progress<int>(p =>
             {
@@ -237,6 +250,20 @@ public partial class MapViewModel : BaseViewModel
             SendProgress      = 0;
             OnPropertyChanged(nameof(CanSendRoute));
             SendRouteToRobotCommand.NotifyCanExecuteChanged();
+
+            // Persist the polygon this route was planned for and arm the fence on it.
+            // Without this the geofence keeps watching whatever zone was saved last, and
+            // stops the mow the instant the robot jumps to the first waypoint of another area.
+            var zone = new BoundaryZone
+            {
+                Id     = _currentZoneId,
+                Name   = ZoneName,
+                Points = BoundaryPoints.ToList()
+            };
+            await _repo.SaveAsync(zone);
+            _currentZoneId = zone.Id;
+            await RefreshZonesAsync();
+            await _geofence.ReloadAsync();
 
             var progress = new Progress<int>(p => SendProgress = p);
 

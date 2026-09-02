@@ -13,3 +13,5 @@ public record OutlineCapturedMessage();
 public record ExitCapturedMessage(int XCm, int YCm);
 
 public record BoundaryClearedMessage();
+
+public record UserDisconnectRequestedMessage();
