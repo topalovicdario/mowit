@@ -97,8 +97,6 @@ public partial class ControlViewModel : BaseViewModel
 
     private GpsPoint? _baseGps;
 
-    // Identity of the zone the Plan-mode polygon is stored under, so repeatedly saving or
-    // mowing the same captured area updates one row instead of piling up new ones.
     private int     _planZoneId;
     private string? _planZoneName;
 
@@ -192,8 +190,6 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
     public int    PlanPointCount      => PlanPoints.Count;
     public bool   CanPickPlanStrategy => PlanPoints.Count >= 3;
     public bool   CanPlanAct          => HasPlanRoute;
-    // Shown on the full-width "Capture point" button rather than in the header row: the
-    // header has to fit two buttons on a 360 dp phone, the action button always has room.
     public string CapturePointLabel => PlanPoints.Count switch
     {
         0 => "Capture point",
@@ -468,11 +464,6 @@ public bool HasGpsFix      => GpsFixType != GpsFixType.NoFix || CurrentPosition.
 
 public void OnJoystickMoved(float normalizedX, float normalizedY)
     {
-        // normalizedX is +1 with the stick pushed right. _heading is a COMPASS BEARING, so
-        // increasing it turns clockwise = right (see StepGps: north += cos h, east += sin h).
-        // Pushing right must therefore give a POSITIVE angular velocity. The original minus
-        // sign assumed the maths convention (positive yaw counter-clockwise) and steered the
-        // mower inverted - the same frame mix-up that had the map arrow 90 degrees out.
         float lin = normalizedY * 0.5f;
         float ang = normalizedX * 1.0f;
         LinearVelocity  = lin;
@@ -529,10 +520,7 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
 
         await RunSafeAsync(async () =>
         {
-            // The firmware refuses CAPTURE/END unless an exit point was marked (END/FAIL/NO_EXIT).
-            // The exit is where the mower leaves the base to enter the lawn, so the position it is
-            // standing on when the user finishes walking the perimeter is the correct one to record.
-            // GreenTitan over SPP has no CAPTURE/EXIT command, so this is a no-op on that transport.
+            
             await _control.SendActionAsync(RobotAction.CaptureExit);
             await _control.SendActionAsync(RobotAction.BoundaryRecordEnd);
         });
@@ -573,7 +561,7 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
     {
         PlanPoints.Clear();
         PlanPointsLocal.Clear();
-        _planZoneId   = 0;        // starting a fresh area - do not overwrite the saved one
+        _planZoneId   = 0;
         _planZoneName = null;
         ResetPlanRoute();
         NotifyPlanChanged();
@@ -612,7 +600,7 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
             await _repo.SaveAsync(zone);
             _planZoneId   = zone.Id;
             _planZoneName = zone.Name;
-            await _geofence.ReloadAsync();   // same rule as the walked boundary: saving a zone arms the fence
+            await _geofence.ReloadAsync();
             LogAndToast($"Zone \"{zone.Name}\" saved");
         }, "Save failed");
     }
@@ -628,7 +616,6 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
             var route = _planner.Plan(zone, PlanStrategyIndex);
             if (route.Count == 0) { ErrorMessage = "Route is empty - add more area"; return; }
 
-            // Guard the area we are about to mow, not whichever zone was saved last.
             await _repo.SaveAsync(zone);
             _planZoneId   = zone.Id;
             _planZoneName = zone.Name;
@@ -696,6 +683,6 @@ public void OnJoystickMoved(float normalizedX, float normalizedY)
 public override void OnDisappearing()
     {
         
-        _ = _control.SendActionAsync(RobotAction.Stop);
+        OnJoystickReleased();
     }
 }

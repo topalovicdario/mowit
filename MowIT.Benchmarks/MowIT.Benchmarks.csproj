@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MowIT.Benchmarks</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MowIT.Shared\MowIT.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="6.0.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\MowIT\Domain\Entities\GpsPoint.cs"          LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\LocalPoint.cs"        LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\BoundaryZone.cs"      LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Geometry\LocalProjection.cs"   LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IMowingStrategy.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Strategies\BoustrophedonStrategy.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Strategies\SpiralInwardStrategy.cs"  LinkBase="Domain" />
+    <Compile Include="..\MowIT\Application\Services\MowingRoutePlanner.cs" LinkBase="Application" />
+
+    <Compile Include="..\MowIT\Infrastructure\Ble\BlePacketSerializer.cs" LinkBase="Infrastructure" />
+    <Compile Include="..\MowIT\Domain\Entities\SensorSnapshot.cs"  LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\RobotStatus.cs"     LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\MowingSchedule.cs"  LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\RobotState.cs"         LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\RobotAction.cs"        LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\GpsFixType.cs"         LinkBase="Domain" />
+
+    <Compile Include="..\MowIT\Application\Services\GeofenceMonitor.cs" LinkBase="Application" />
+    <Compile Include="..\MowIT\Application\Messages\BleMessages.cs"     LinkBase="Application" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IBoundaryRepository.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IRobotConnection.cs"    LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IRobotControl.cs"       LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IRobotSensors.cs"       LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\MowerDevice.cs"           LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\BleConnectionState.cs"       LinkBase="Domain" />
+  </ItemGroup>
+</Project>

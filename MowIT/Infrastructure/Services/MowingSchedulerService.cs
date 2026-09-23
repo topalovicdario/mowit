@@ -11,7 +11,7 @@ public sealed class MowingSchedulerService : IDisposable
     private readonly SendZoneToRobotUseCase _sendZone;
     private readonly ILogger<MowingSchedulerService> _logger;
     private readonly Timer _timer;
-    private bool _ticking; 
+    private int _ticking;
 
     public MowingSchedulerService(
         IScheduleRepository    repo,
@@ -30,8 +30,7 @@ public sealed class MowingSchedulerService : IDisposable
 
     private async Task TickAsync()
     {
-        if (_ticking) return;
-        _ticking = true;
+        if (Interlocked.CompareExchange(ref _ticking, 1, 0) != 0) return;
         try
         {
             var now       = DateTime.Now;
@@ -80,7 +79,7 @@ if (schedule.LastExecuted.Date == now.Date
         }
         finally
         {
-            _ticking = false;
+            Volatile.Write(ref _ticking, 0);
         }
     }
 

@@ -70,11 +70,7 @@ public partial class ScanViewModel : BaseViewModel
         Subscribe();
     }
 
-    /// <summary>
-    /// Builds the live subscriptions. Shell caches this page, so OnDisappearing tears them
-    /// down and this rebuilds them every time the page is shown again - without that, coming
-    /// back here after a disconnect would leave the device list permanently dead.
-    /// </summary>
+    
     private void Subscribe()
     {
         _deviceSub?.Dispose();
@@ -98,7 +94,7 @@ public partial class ScanViewModel : BaseViewModel
                 _evt.State(Source, $"connection to {s}");
             }));
 
-        // Register throws on a duplicate, and Subscribe() runs again on every appearance.
+       
         WeakReferenceMessenger.Default.Unregister<RobotErrorMessage>(this);
         WeakReferenceMessenger.Default.Register<RobotErrorMessage>(this, (_, m) =>
         {
@@ -112,7 +108,6 @@ public partial class ScanViewModel : BaseViewModel
     {
         Subscribe();
 
-        // The state stream is not replayed on re-subscribe, so seed the badge by hand.
         ConnectionState = _connection.CurrentState;
         return Task.CompletedTask;
     }

@@ -60,15 +60,15 @@ public static byte[] SerializeMotorCommand(float linearVel, float angularVel)
 public static byte[] SerializeActionCommand(Domain.Enums.RobotAction action, byte param = 0)
         => new[] { (byte)action, param };
 
-public static byte[] SerializeBoundaryChunk(byte index, byte total, byte pointType, GpsPoint point)
+public static byte[] SerializeBoundaryChunk(ushort index, ushort total, byte pointType, GpsPoint point)
     {
-        var buf = new byte[20];
-        buf[0] = index;
-        buf[1] = total;
-        buf[2] = pointType;
-        buf[3] = 0;
-        BitConverter.GetBytes(point.Latitude) .CopyTo(buf, 4);
-        BitConverter.GetBytes(point.Longitude).CopyTo(buf, 12);
+        var buf = new byte[22];
+        BitConverter.GetBytes(index).CopyTo(buf, 0);
+        BitConverter.GetBytes(total).CopyTo(buf, 2);
+        buf[4] = pointType;
+        buf[5] = 0;
+        BitConverter.GetBytes(point.Latitude) .CopyTo(buf, 6);
+        BitConverter.GetBytes(point.Longitude).CopyTo(buf, 14);
         return buf;
     }
 

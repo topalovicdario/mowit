@@ -92,7 +92,8 @@ public IObservable<RobotConnectionState> ConnectionState => _stateSubject;
         try
         {
             _device  = await _adapter.ConnectToKnownDeviceAsync(mowerDevice.Id, cancellationToken: ct);
-            await _device.RequestMtuAsync(512);
+            var mtu = await _device.RequestMtuAsync(512);
+            _logger.LogInformation("Pregovoreni ATT_MTU: {Mtu} B (korisno {Payload} B)", mtu, mtu - 3);
             _service = await _device.GetServiceAsync(BleGattProfile.ServiceUuid, ct);
 
             if (_service is null) throw new Exception("GreenTitan GATT service not found on device");
@@ -233,7 +234,7 @@ public async Task SendBoundaryAsync(BoundaryZone zone, IProgress<int>? progress 
         for (int i = 0; i < points.Count; i++)
         {
             var chunk = BlePacketSerializer.SerializeBoundaryChunk(
-                (byte)i, (byte)points.Count, 0, points[i]);
+                (ushort)i, (ushort)points.Count, 0, points[i]);
             await _boundaryChar.WriteAsync(chunk);
             await Task.Delay(50); 
             progress?.Report((i + 1) * 100 / points.Count);
@@ -247,7 +248,7 @@ public async Task SendBoundaryAsync(BoundaryZone zone, IProgress<int>? progress 
         for (int i = 0; i < route.Count; i++)
         {
             var chunk = BlePacketSerializer.SerializeBoundaryChunk(
-                (byte)i, (byte)route.Count, 1, route[i]);
+                (ushort)i, (ushort)route.Count, 1, route[i]);
             await _boundaryChar.WriteAsync(chunk);
             await Task.Delay(50);
             progress?.Report((i + 1) * 100 / route.Count);

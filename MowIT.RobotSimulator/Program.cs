@@ -12,6 +12,36 @@ var config = new ConfigurationBuilder()
     .AddCommandLine(args)
     .Build();
 
+if (config["Mode"] == "headless")
+{
+    await HeadlessRunner.RunAsync(config);
+    return;
+}
+
+if (config["Mode"] == "network-test")
+{
+    await NetworkTestRunner.RunAsync(config);
+    return;
+}
+
+if (config["Mode"] == "schedule-test")
+{
+    await ScheduleTestRunner.RunAsync(config);
+    return;
+}
+
+if (config["Mode"] == "transport-test")
+{
+    await TransportTestRunner.RunAsync(config);
+    return;
+}
+
+if (config["Mode"] == "geofence-test")
+{
+    await GeofenceTestRunner.RunAsync(config);
+    return;
+}
+
 string baseUrl = config["Robot:BaseUrl"] ?? "http://localhost:5080";
 string robotId = config["Robot:RobotId"] ?? "demo-robot-01";
 string token   = config["Robot:Token"]   ?? "dev-token-please-replace-in-prod";

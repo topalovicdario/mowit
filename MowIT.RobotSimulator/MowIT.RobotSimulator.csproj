@@ -11,10 +11,47 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="System.Reactive" Version="6.0.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MowIT.Shared\MowIT.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\MowIT\Domain\Entities\GpsPoint.cs"          LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\LocalPoint.cs"        LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\BoundaryZone.cs"      LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Geometry\LocalProjection.cs"   LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IMowingStrategy.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Strategies\BoustrophedonStrategy.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Strategies\SpiralInwardStrategy.cs"  LinkBase="Domain" />
+    <Compile Include="..\MowIT.Benchmarks\CoverageMeter.cs"  LinkBase="Benchmarks" />
+    <Compile Include="..\MowIT.Benchmarks\TestPolygons.cs"   LinkBase="Benchmarks" />
+
+    <Compile Include="..\MowIT\Domain\Entities\MowerDevice.cs"           LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\MowingSchedule.cs"        LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\RobotAction.cs"              LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\BleConnectionState.cs"       LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IRobotConnection.cs"    LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IRobotControl.cs"       LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IRobotBoundary.cs"      LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IScheduleRepository.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IScheduleSyncService.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IBoundaryRepository.cs" LinkBase="Domain" />
+    <Compile Include="..\MowIT\Application\Services\MowingRoutePlanner.cs"     LinkBase="Application" />
+    <Compile Include="..\MowIT\Application\UseCases\SendZoneToRobotUseCase.cs" LinkBase="Application" />
+    <Compile Include="..\MowIT\Infrastructure\Services\MowingSchedulerService.cs"      LinkBase="Infrastructure" />
+    <Compile Include="..\MowIT\Infrastructure\ScheduleSync\SyncingScheduleRepository.cs" LinkBase="Infrastructure" />
+
+    <Compile Include="..\MowIT\Application\Services\GeofenceMonitor.cs"    LinkBase="Application" />
+    <Compile Include="..\MowIT\Application\Messages\BleMessages.cs"       LinkBase="Application" />
+    <Compile Include="..\MowIT\Domain\Interfaces\IRobotSensors.cs"        LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\SensorSnapshot.cs"         LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Entities\RobotStatus.cs"            LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\GpsFixType.cs"                LinkBase="Domain" />
+    <Compile Include="..\MowIT\Domain\Enums\RobotState.cs"                LinkBase="Domain" />
   </ItemGroup>
 
   <ItemGroup>

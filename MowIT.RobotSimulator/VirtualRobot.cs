@@ -48,6 +48,37 @@ public sealed class VirtualRobot
     private readonly DateTime _bootedAt = DateTime.UtcNow;
     private double _elapsedSeconds;
 
+    public const int StateIdleValue   = 0;
+    public const int StateMowingValue = 1;
+
+    public int    State          => _state;
+    public int    RouteIndex     => _routeIdx;
+    public int    RouteCount     => _route.Count;
+    public double ElapsedSeconds => _elapsedSeconds;
+
+    public double TrueLat => _lat;
+    public double TrueLon => _lon;
+    public double ReportedLat { get; private set; }
+    public double ReportedLon { get; private set; }
+    public double NoiseSigmaM { get; set; }
+
+    private Random? _rng;
+    public void SetSeed(int seed) => _rng = new Random(seed);
+
+    public VirtualRobot()
+    {
+        ReportedLat = _lat;
+        ReportedLon = _lon;
+    }
+
+    public void SetRoute(IEnumerable<(double Lat, double Lon)> route)
+    {
+        _route.Clear();
+        _route.AddRange(route);
+        _routeIdx  = 0;
+        _pathSaved = true;
+    }
+
     public void Tick(double dt)
     {
         _elapsedSeconds += dt;
@@ -62,6 +93,32 @@ public sealed class VirtualRobot
         }
 
         _accMm = (float)Math.Max(RtkAccuracyMm, StartAccuracyMm - AccuracyRampMmPerSec * _elapsedSeconds);
+
+        UpdateReportedPosition();
+    }
+
+    private void UpdateReportedPosition()
+    {
+        if (NoiseSigmaM > 0 && _rng is not null)
+        {
+            double nN = GaussianNoise(NoiseSigmaM);
+            double nE = GaussianNoise(NoiseSigmaM);
+            ReportedLat = _lat + nN / MetersPerDegree;
+            ReportedLon = _lon + nE / (MetersPerDegree * Math.Cos(_lat * Math.PI / 180.0));
+        }
+        else
+        {
+            ReportedLat = _lat;
+            ReportedLon = _lon;
+        }
+    }
+
+    private double GaussianNoise(double stdDev)
+    {
+        double u1 = 1.0 - _rng!.NextDouble();
+        double u2 = _rng.NextDouble();
+        double z  = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
+        return z * stdDev;
     }
 
     private void DriveManualOrArc(double dt)
@@ -112,8 +169,8 @@ public sealed class VirtualRobot
         }
 
         var (tLat, tLon) = _route[_routeIdx];
-        double dNorth = (tLat - _lat) * MetersPerDegree;
-        double dEast  = (tLon - _lon) * MetersPerDegree * Math.Cos(_lat * Math.PI / 180.0);
+        double dNorth = (tLat - ReportedLat) * MetersPerDegree;
+        double dEast  = (tLon - ReportedLon) * MetersPerDegree * Math.Cos(ReportedLat * Math.PI / 180.0);
         double dist   = Math.Sqrt(dNorth * dNorth + dEast * dEast);
 
         if (dist < WaypointReachM)
@@ -142,8 +199,8 @@ public sealed class VirtualRobot
 
         return new TelemetryDto
         {
-            Lat           = _lat,
-            Lon           = _lon,
+            Lat           = ReportedLat,
+            Lon           = ReportedLon,
             GpsAccuracyMm = _accMm,
             GpsFixType    = _accMm < GoodAccuracyMm ? FixRtkFixed : FixStandard,
             HeadingRad    = _heading,
@@ -185,11 +242,7 @@ public sealed class VirtualRobot
     {
         if (boundary?.Points is not { Length: > 0 } points) return;
 
-        _route.Clear();
-        foreach (var p in points)
-            _route.Add((p.Lat, p.Lon));
-        _routeIdx  = 0;
-        _pathSaved = true;
+        SetRoute(points.Select(p => (p.Lat, p.Lon)));
     }
 
     private void ApplyMotor(float linear, float angular)
@@ -242,6 +295,7 @@ public sealed class VirtualRobot
                     (_lat, _lon) = _route[0];
                     _routeIdx    = Math.Min(1, _route.Count - 1);
                     _state       = StateMowing;
+                    UpdateReportedPosition();
                 }
                 else if (!_hasDatum)
                     events.Add(Error("MOWER_START_FAIL/NO_DATUM"));
